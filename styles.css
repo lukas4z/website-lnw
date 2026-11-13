@@ -63,7 +63,7 @@ figure { margin: 0; }
 html:not(.js) .seg { display: none; }
 /* the audience tabs move on by themselves; a thin line shows how long the current one stays */
 .seg button { position: relative; overflow: hidden; }
-.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 2400ms linear both; }
+.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 5000ms linear both; }
 @keyframes tab-progress { from { transform: scaleX(0); } }
 /* the panels share one place and cross-fade slowly, so the change reads as a drift, not a cut */
 .js .who__stack { display: grid; }
