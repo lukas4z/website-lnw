@@ -46,10 +46,13 @@ figure { margin: 0; }
 html:not(.js) .seg { display: none; }
 /* the audience tabs move on by themselves; a thin line shows how long the current one stays */
 .seg button { position: relative; overflow: hidden; }
-.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 1800ms linear both; }
+.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 2400ms linear both; }
 @keyframes tab-progress { from { transform: scaleX(0); } }
-.who__panel:not([hidden]) { animation: panel-in var(--dur-long) var(--ease-out); }
-@keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }
+/* the panels share one place and cross-fade slowly, so the change reads as a drift, not a cut */
+.js .who__stack { display: grid; }
+.js .who__stack > .who__panel { grid-area: 1 / 1; margin-top: 0; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 500ms var(--ease-in-out), transform 500ms var(--ease-in-out), visibility 0s linear 500ms; }
+.js .who__stack > .who__panel.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity 900ms var(--ease-in-out) 380ms, transform 900ms var(--ease-in-out) 380ms, visibility 0s; }
+.seg button { transition: background-color 700ms var(--ease-in-out), color 700ms var(--ease-in-out); }
 
 
 /* ---------- nav: a floating pill ---------- */
@@ -511,7 +514,8 @@ main, .foot, .nav { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .who__panel:not([hidden]), .seg.is-auto button[aria-selected="true"]::after { animation: none; }
+  .seg.is-auto button[aria-selected="true"]::after { animation: none; }
+  .js .who__stack > .who__panel, .seg button { transition: none; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
   .space__sky, .space__planet { transform: none; }
   .task__in, .js .line > span, .robot__head, .robot__antenna, .robot__ear, .bench .robot__arm, .run__chip { animation: none !important; }

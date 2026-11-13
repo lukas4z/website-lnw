@@ -459,7 +459,9 @@
         const on = t === tab;
         t.setAttribute('aria-selected', String(on));
         t.tabIndex = on ? 0 : -1;
-        $('#' + t.getAttribute('aria-controls')).hidden = !on;
+        const panel = $('#' + t.getAttribute('aria-controls'));
+        panel.classList.toggle('is-on', on);
+        panel.setAttribute('aria-hidden', String(!on));
       });
       if (focus) tab.focus();
     };
@@ -476,7 +478,7 @@
 
     // every few seconds the next audience comes up; it waits while someone reads or uses the tabs
     if (!reduced.matches && 'IntersectionObserver' in window) {
-      const every = 1800;
+      const every = 2400;
       const state = { seen: false, held: false, stopped: false };
       let timer = 0;
       const sync = () => {
