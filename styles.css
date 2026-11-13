@@ -44,6 +44,13 @@ figure { margin: 0; }
 .seg button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
 .seg button[aria-selected="true"] { background: var(--color-light); color: var(--color-ink); box-shadow: var(--edge-light), var(--shadow-chip); }
 html:not(.js) .seg { display: none; }
+/* the audience tabs move on by themselves; a thin line shows how long the current one stays */
+.seg button { position: relative; overflow: hidden; }
+.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 4500ms linear both; }
+@keyframes tab-progress { from { transform: scaleX(0); } }
+.who__panel:not([hidden]) { animation: panel-in var(--dur-long) var(--ease-out); }
+@keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }
+
 
 /* ---------- nav: a floating pill ---------- */
 .nav { position: fixed; top: var(--space-md); left: 0; right: 0; z-index: var(--z-sticky-nav); pointer-events: none; }
@@ -155,7 +162,8 @@ html:not(.js) .stage__toggle { display: none; }
 
 /* ---------- the statement: its words fill in as the page scrolls ---------- */
 .say__text { max-width: 17em; font: var(--display-weight) clamp(2.25rem, 4.4vw + 0.5rem, 4.5rem)/1.06 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); text-wrap: balance; }
-.say__text span { opacity: var(--o, 1); }
+[data-scrub] span { opacity: var(--o, 1); }
+[data-flow] { opacity: var(--o, 1); }
 
 /* ---------- services: a bento of four wells ---------- */
 
@@ -481,6 +489,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .who__panel:not([hidden]), .seg.is-auto button[aria-selected="true"]::after { animation: none; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
   .space__sky, .space__planet { transform: none; }
   .task__in, .js .line > span, .robot__head, .robot__antenna, .robot__ear, .bench .robot__arm, .run__chip { animation: none !important; }

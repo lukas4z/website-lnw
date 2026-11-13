@@ -281,23 +281,32 @@
     }), 4200);
   }
 
-  /* ---------- the statement that fills in on scroll ---------- */
-  const scrub = $('[data-scrub]');
-  if (scrub && !reduced.matches) {
-    const words = scrub.textContent.trim().split(/\s+/);
-    scrub.setAttribute('aria-label', words.join(' '));
-    scrub.innerHTML = words.map((w) => `<span aria-hidden="true">${w}</span>`).join(' ');
-    const spans = $$('span', scrub);
+  /* ---------- text that fills in as it scrolls up the screen: grey first, then white ---------- */
+  const scrubs = $$('[data-scrub]');
+  const flows = $$('[data-flow]');
+  if ((scrubs.length || flows.length) && !reduced.matches) {
+    const groups = scrubs.map((el) => {
+      const words = el.textContent.trim().split(/\s+/);
+      el.setAttribute('aria-label', words.join(' '));
+      el.innerHTML = words.map((w) => `<span aria-hidden="true">${w}</span>`).join(' ');
+      return { el, spans: $$('span', el) };
+    });
     let ticking = false;
-    const paintWords = () => {
+    const paintText = () => {
       ticking = false;
-      const r = scrub.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, (innerHeight * 0.9 - r.top) / (innerHeight * 0.55)));
-      spans.forEach((sp, i) => sp.style.setProperty('--o', (0.16 + 0.84 * Math.min(1, Math.max(0, p * (spans.length + 2) - i))).toFixed(3)));
+      const vh = innerHeight;
+      groups.forEach(({ el, spans }) => {
+        const p = Math.min(1, Math.max(0, (vh * 0.92 - el.getBoundingClientRect().top) / (vh * 0.55)));
+        spans.forEach((sp, i) => sp.style.setProperty('--o', (0.16 + 0.84 * Math.min(1, Math.max(0, p * (spans.length + 2) - i))).toFixed(3)));
+      });
+      flows.forEach((el) => {
+        const p = Math.min(1, Math.max(0, (vh * 0.98 - el.getBoundingClientRect().top) / (vh * 0.4)));
+        el.style.setProperty('--o', (0.16 + 0.84 * p).toFixed(3));
+      });
     };
-    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(paintWords); } }, { passive: true });
-    addEventListener('resize', paintWords);
-    paintWords();
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(paintText); } }, { passive: true });
+    addEventListener('resize', paintText);
+    paintText();
   }
 
   /* ---------- the service cards: play once in view, again on hover or tap ---------- */
@@ -332,9 +341,10 @@
     });
   }
 
-  /* ---------- the switcher ---------- */
+  /* ---------- the switcher: tabs you can click, and that move on by themselves ---------- */
   $$('[data-switch]').forEach((root) => {
     const tabs = $$('[role="tab"]', root);
+    const list = $('[role="tablist"]', root);
     const select = (tab, focus) => {
       tabs.forEach((t) => {
         const on = t === tab;
@@ -354,6 +364,29 @@
       });
     });
     select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+
+    // every few seconds the next audience comes up; it waits while someone reads or uses the tabs
+    if (!reduced.matches && 'IntersectionObserver' in window) {
+      const every = 4500;
+      const state = { seen: false, held: false, stopped: false };
+      let timer = 0;
+      const sync = () => {
+        clearInterval(timer);
+        const on = state.seen && !state.held && !state.stopped;
+        list.classList.toggle('is-auto', on);
+        if (!on) return;
+        timer = setInterval(() => {
+          const i = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+          select(tabs[(i + 1) % tabs.length]);
+        }, every);
+      };
+      new IntersectionObserver(([e]) => { state.seen = e.isIntersecting; sync(); }, { threshold: 0.4 }).observe(root);
+      root.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { state.held = true; sync(); } });
+      root.addEventListener('pointerleave', () => { state.held = false; sync(); });
+      root.addEventListener('focusin', () => { state.held = true; sync(); });
+      root.addEventListener('focusout', () => { state.held = false; sync(); });
+      tabs.forEach((t) => t.addEventListener('click', (e) => { if (e.isTrusted) { state.stopped = true; sync(); } }));
+    }
   });
 
   /* ---------- copy the address ---------- */
@@ -370,6 +403,38 @@
       setTimeout(() => { label.textContent = text; }, 2200);
     });
   });
+
+  /* ---------- a wheel that glides: the page eases toward where the wheel asked it to go ---------- */
+  if (!reduced.matches && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const root = document.documentElement;
+    let target = scrollY, current = scrollY, gliding = false;
+    const limit = () => root.scrollHeight - innerHeight;
+    const glide = () => {
+      current += (target - current) * 0.12;
+      if (Math.abs(target - current) < 0.4) { current = target; gliding = false; }
+      scrollTo({ top: current, behavior: 'instant' });
+      if (gliding) requestAnimationFrame(glide);
+    };
+    addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // leave elements alone that scroll on their own
+      for (let n = e.target; n && n !== document.body; n = n.parentElement) {
+        const o = getComputedStyle(n).overflowY;
+        if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) return;
+      }
+      e.preventDefault();
+      if (!gliding) { target = current = scrollY; }
+      const step = e.deltaMode === 1 ? e.deltaY * 34 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+      target = Math.min(limit(), Math.max(0, target + step));
+      if (!gliding) { gliding = true; requestAnimationFrame(glide); }
+    }, { passive: false });
+    // keys, the scrollbar and anchor links move the page themselves: follow them, do not fight them
+    addEventListener('scroll', () => { if (!gliding) { target = current = scrollY; } }, { passive: true });
+    addEventListener('pointerdown', () => { gliding = false; target = current = scrollY; }, { passive: true });
+    addEventListener('keydown', () => { gliding = false; }, { passive: true });
+    $$('a[href^="#"]').forEach((a) => a.addEventListener('click', () => { gliding = false; }));
+  }
 
   /* ---------- the scroll engine ---------- */
   if (window.ScrollCraft) window.ScrollCraft.mount(document.body);
