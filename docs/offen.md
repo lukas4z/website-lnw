@@ -17,7 +17,7 @@ Stand: 13.11.2026
 - **Impressum, Umsatzsteuer:** Kleinunternehmer nach § 19 UStG oder USt-IdNr.
 - **Impressum, zweiter Kontaktweg:** Neben der E-Mail ist ein weiterer schneller Weg nötig, üblich ist eine Telefonnummer.
 - **Datenschutzerklärung, Hoster:** Name, Anschrift, Speicherdauer der Server-Protokolle, Vertrag zur Auftragsverarbeitung. Der Rest des Textes steht, sollte aber einmal rechtlich gegengelesen werden.
-- **Anschrift im Footer der Startseite:** Wenn das die Wohnadresse ist, besser nur ins Impressum. Dann auch aus den strukturierten Daten in `index.html` nehmen.
+- **Anschrift:** Straße und Postleitzahl stehen nur noch im Impressum und in der Datenschutzerklärung, nicht mehr im Footer und nicht in den strukturierten Daten. Sobald es eine Geschäftsadresse gibt, dort eintragen.
 - **Adresse der Seite:** `og:url`, `og:image`, `canonical`, die strukturierten Daten, `robots.txt` und `sitemap.xml` nennen `https://lnw-automations-solutions.de`. Läuft die Seite woanders, dort anpassen.
 - **E-Mail:** SPF, DKIM und DMARC für die Domain einrichten.
 - **Echtes Handy und Screenreader:** bisher nur im Emulator geprüft.
