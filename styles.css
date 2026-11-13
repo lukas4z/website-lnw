@@ -61,6 +61,13 @@ figure { margin: 0; }
 .seg button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
 .seg button[aria-selected="true"] { background: var(--color-light); color: var(--color-ink); box-shadow: var(--edge-light), var(--shadow-chip); }
 html:not(.js) .seg { display: none; }
+/* the audience tabs move on by themselves; a thin line shows how long the current one stays */
+.seg button { position: relative; overflow: hidden; }
+.seg.is-auto button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--color-accent); transform-origin: left center; animation: tab-progress 4500ms linear both; }
+@keyframes tab-progress { from { transform: scaleX(0); } }
+.who__panel:not([hidden]) { animation: panel-in var(--dur-long) var(--ease-out); }
+@keyframes panel-in { from { opacity: 0; transform: translateY(10px); } }
+
 
 /* ---------- nav: a floating pill ---------- */
 .nav { position: fixed; top: var(--space-md); left: 0; right: 0; z-index: var(--z-sticky-nav); pointer-events: none; }
@@ -406,6 +413,7 @@ html:not(.js) .stage__toggle { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .who__panel:not([hidden]), .seg.is-auto button[aria-selected="true"]::after { animation: none; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
   .light canvas { animation: none; }
   .robot.is-pulse .robot__antenna::before, .robot.is-typing .robot__arm--l, .robot.is-typing .robot__arm--r, [data-s="run"] .tick::before { animation: none; }
