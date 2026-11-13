@@ -171,10 +171,10 @@
 
     const tasks = [
       { from: 'discord', icon: 'message-square', name: 'Support-Ticket', steps: ['Anliegen erkannt', 'Antwort geschrieben', 'Ticket geschlossen'], out: 'Dein Zugang ist wieder frei. Melde dich einfach neu an.', to: 'reply', result: 'Ticket gelöst' },
-      { from: 'form', icon: 'file-text', name: 'Projektanfrage', steps: ['Angaben geprüft', 'Kontakt angelegt', 'Rückruf geplant'], out: 'Neuer Kontakt: Beispiel GmbH, Thema Onlineshop.', to: 'data', result: 'Kontakt angelegt' },
-      { from: 'mail', icon: 'mail', name: 'Terminanfrage', steps: ['Kalender geprüft', 'Termin eingetragen', 'Bestätigung gesendet'], out: 'Passt: Dienstag um 10 Uhr ist für dich reserviert.', to: 'calendar', result: 'Termin eingetragen' },
-      { from: 'discord', icon: 'message-square', name: 'Neues Mitglied', steps: ['Regeln bestätigt', 'Rolle vergeben', 'Begrüßung gesendet'], out: 'Willkommen! Du hast jetzt Zugriff auf alle Kanäle.', to: 'reply', result: 'Mitglied begrüßt' },
-      { from: 'mail', icon: 'mail', name: 'Rechnung anfordern', steps: ['Kunde erkannt', 'Rechnung erstellt', 'Beleg abgelegt'], out: 'Rechnung für Beispiel GmbH erstellt und abgelegt.', to: 'data', result: 'Rechnung abgelegt' },
+      { from: 'form', icon: 'file-text', name: 'Projektanfrage', steps: ['Angaben geprüft', 'Kontakt angelegt', 'Rückruf geplant'], out: 'Neuer Kontakt: Beispiel GmbH, Thema Onlineshop.', to: 'data', result: 'Kontakt neu' },
+      { from: 'mail', icon: 'mail', name: 'Terminanfrage', steps: ['Kalender geprüft', 'Termin eingetragen', 'Bestätigung gesendet'], out: 'Passt: Dienstag um 10 Uhr ist für dich reserviert.', to: 'calendar', result: 'Termin steht' },
+      { from: 'discord', icon: 'message-square', name: 'Neues Mitglied', steps: ['Regeln bestätigt', 'Rolle vergeben', 'Begrüßung gesendet'], out: 'Willkommen! Du hast jetzt Zugriff auf alle Kanäle.', to: 'reply', result: 'Begrüßt' },
+      { from: 'mail', icon: 'mail', name: 'Rechnung anfordern', steps: ['Kunde erkannt', 'Rechnung erstellt', 'Beleg abgelegt'], out: 'Rechnung für Beispiel GmbH erstellt und abgelegt.', to: 'data', result: 'Beleg abgelegt' },
     ];
 
     // wires, drawn from where the pieces really are
