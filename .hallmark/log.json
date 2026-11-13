@@ -1,0 +1,35 @@
+[
+ {
+  "shape": "Bento Grid",
+  "theme": "refract",
+  "genre": "atmospheric",
+  "axes": "light/grotesk-sans/cool",
+  "hero": "Ledge",
+  "nav": "floating pill",
+  "footer": "letter close",
+  "imagery": "the product built in the hero, four tiles and four steps, one portrait slot",
+  "photos": [],
+  "entry": "index.html",
+  "fingerprint": "ledge-pill-letter-bento-steps-switcher",
+  "sections": [
+   "Hero",
+   "Statement",
+   "Bento",
+   "Steps",
+   "Switcher",
+   "Split",
+   "Band",
+   "Footer"
+  ],
+  "signature": "a small glass robot at its monitor, working through tasks live",
+  "waived": [
+   "80",
+   "81",
+   "77",
+   "78"
+  ],
+  "prompt": "Landing page for LNW Automation & AI Solutions",
+  "date": "2026-11-13",
+  "mode": "build"
+ }
+]
