@@ -476,27 +476,32 @@
     });
     select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
 
-    // every few seconds the next audience comes up; it waits while someone reads or uses the tabs
+    // the next audience comes up by itself for as long as the section is on screen.
+    // It only waits while the pointer rests on the tabs themselves, and for a few seconds after a click.
     if (!reduced.matches && 'IntersectionObserver' in window) {
       const every = 2400;
-      const state = { seen: false, held: false, stopped: false };
-      let timer = 0;
-      const sync = () => {
-        clearInterval(timer);
-        const on = state.seen && !state.held && !state.stopped;
-        list.classList.toggle('is-auto', on);
-        if (!on) return;
-        timer = setInterval(() => {
-          const i = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
-          select(tabs[(i + 1) % tabs.length]);
-        }, every);
+      let seen = false, restUntil = 0, timer = 0;
+      const busy = () => list.matches(':hover') || list.contains(document.activeElement) || Date.now() < restUntil;
+      const tick = () => {
+        if (!seen || document.hidden) return;
+        const waiting = busy();
+        list.classList.toggle('is-auto', !waiting);
+        if (waiting) return;
+        const i = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+        select(tabs[(i + 1) % tabs.length]);
       };
-      new IntersectionObserver(([e]) => { state.seen = e.isIntersecting; sync(); }, { threshold: 0.4 }).observe(root);
-      root.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { state.held = true; sync(); } });
-      root.addEventListener('pointerleave', () => { state.held = false; sync(); });
-      root.addEventListener('focusin', () => { state.held = true; sync(); });
-      root.addEventListener('focusout', () => { state.held = false; sync(); });
-      tabs.forEach((t) => t.addEventListener('click', (e) => { if (e.isTrusted) { state.stopped = true; sync(); } }));
+      new IntersectionObserver(([e]) => {
+        seen = e.isIntersecting;
+        list.classList.toggle('is-auto', seen && !busy());
+        clearInterval(timer);
+        if (seen) timer = setInterval(tick, every);
+      }, { threshold: 0.2 }).observe(root);
+      tabs.forEach((t) => t.addEventListener('click', (e) => {
+        if (!e.isTrusted) return;
+        restUntil = Date.now() + 6000;
+        list.classList.remove('is-auto');
+        t.blur();
+      }));
     }
   });
 
