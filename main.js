@@ -241,6 +241,25 @@
     requestAnimationFrame(frame);
   }
 
+  /* ---------- the path: the step in view decides the robot's prop and pose ---------- */
+  const pathAct = $('#ablauf');
+  const pathBox = pathAct && $('.path', pathAct);
+  if (pathBox) {
+    const items = $$('.path__step', pathBox);
+    let shown = -1;
+    const tick = () => {
+      const p = parseFloat(pathAct.style.getPropertyValue('--sc-p')) || 0;
+      const step = Math.max(0, Math.min(items.length - 1, Math.floor((p - 0.02) / 0.235)));
+      if (step !== shown) {
+        shown = step;
+        pathBox.dataset.step = String(step);
+        items.forEach((li, i) => li.classList.toggle('is-active', i === step));
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   // the second robot, at the close, looks around while it waits for an answer
   const greeter = $('.close__bot .robot');
   if (greeter && !reduced.matches) {

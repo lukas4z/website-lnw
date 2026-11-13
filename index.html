@@ -71,7 +71,7 @@
 <main id="main">
 
   <!-- 1 · the desk: scroll feeds the pile of tasks to the robot -->
-  <section id="top" data-sc-act="pin" data-sc-span="4">
+  <section id="top" data-sc-act="pin" data-sc-span="2.6">
     <div data-sc-stage class="desk-stage">
       <div class="hero__copy" data-sc-cue="0 0.2 0">
         <h1><span class="line"><span style="--i:0">Routine erledigt</span></span> <span class="line"><span style="--i:1">ab jetzt dein Bot.</span></span></h1>
@@ -193,49 +193,81 @@
     </div>
   </section>
 
-  <!-- 4 · the path: four steps, drawn by the scroll -->
-  <section id="ablauf" data-sc-act="pin" data-sc-span="2.8">
+  <!-- 4 · the path: four steps down one line, and the robot acts each one out -->
+  <section id="ablauf" data-sc-act="pin" data-sc-span="3">
     <div data-sc-stage>
-      <div class="container path">
-        <h2>Vier Schritte, bis dein Bot läuft.</h2>
-        <div class="path__wrap">
-          <span class="path__bar" aria-hidden="true"><i></i></span>
-          <ol class="path__steps">
-            <li class="path__step" style="--i:0">
-              <div class="path__art" aria-hidden="true">
-                <p class="bubble bubble--a"><span>Was kostet dich Zeit?</span></p>
-                <p class="bubble bubble--q">Die Tickets.</p>
-              </div>
-              <span class="path__mark"></span>
-              <h3>Kennenlernen</h3>
-              <p>Im kostenlosen Erstgespräch erzählst du, was dich aufhält.</p>
-            </li>
-            <li class="path__step" style="--i:1">
-              <div class="path__art" aria-hidden="true">
-                <div class="mini"><span class="box box--sketch">Eingang</span><span class="link link--sketch"></span><span class="box box--sketch">Bot</span><span class="link link--sketch"></span><span class="box box--sketch">Antwort</span></div>
-              </div>
-              <span class="path__mark"></span>
-              <h3>Konzept</h3>
-              <p>Ich zeige dir, was sich automatisieren lässt und wie.</p>
-            </li>
-            <li class="path__step" style="--i:2">
-              <div class="path__art" aria-hidden="true">
-                <ul class="checks"><li><svg class="icon"><use href="#i-check"/></svg>Bot gebaut</li><li><svg class="icon"><use href="#i-check"/></svg>Mit dir getestet</li><li><svg class="icon"><use href="#i-check"/></svg>Nachgeschärft</li></ul>
-              </div>
-              <span class="path__mark"></span>
-              <h3>Umsetzung</h3>
-              <p>Ich baue, du testest früh mit und sagst, was fehlt.</p>
-            </li>
-            <li class="path__step" style="--i:3">
-              <div class="path__art" aria-hidden="true">
-                <p class="live"><span class="switch"><b></b></span>läuft</p>
-              </div>
-              <span class="path__mark"></span>
-              <h3>Betrieb</h3>
-              <p>Dein System läuft, und ich passe an, was sich ändert.</p>
-            </li>
-          </ol>
+      <div class="container path" data-step="0">
+        <div class="path__list">
+          <h2>Vier Schritte, bis dein Bot läuft.</h2>
+          <div class="path__wrap">
+            <span class="path__bar" aria-hidden="true"><i></i></span>
+            <ol class="path__steps">
+              <li class="path__step is-active" style="--i:0">
+                <span class="path__mark"></span>
+                <h3>Kennenlernen</h3>
+                <p>Im kostenlosen Erstgespräch erzählst du, was dich aufhält.</p>
+              </li>
+              <li class="path__step" style="--i:1">
+                <span class="path__mark"></span>
+                <h3>Konzept</h3>
+                <p>Ich zeige dir, was sich automatisieren lässt und wie.</p>
+              </li>
+              <li class="path__step" style="--i:2">
+                <span class="path__mark"></span>
+                <h3>Umsetzung</h3>
+                <p>Ich baue, du testest früh mit und sagst, was fehlt.</p>
+              </li>
+              <li class="path__step" style="--i:3">
+                <span class="path__mark"></span>
+                <h3>Betrieb</h3>
+                <p>Dein System läuft, und ich passe an, was sich ändert.</p>
+              </li>
+            </ol>
+          </div>
         </div>
+
+        <figure class="bench" aria-hidden="true">
+          <div class="bench__bot">
+            <div class="robot" aria-hidden="true">
+              <span class="robot__antenna"></span>
+              <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
+              <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
+              <span class="robot__neck"></span>
+              <span class="robot__body"></span>
+              <span class="robot__arm robot__arm--l"></span><span class="robot__arm robot__arm--r"></span>
+              <span class="robot__keys"></span>
+            </div>
+          </div>
+          <div class="bench__props">
+            <div class="bench__prop bench__prop--1">
+              <p class="bubble bubble--a"><span>Hallo! Was kostet dich Zeit?</span></p>
+              <p class="bubble bubble--q">Die Tickets.</p>
+            </div>
+            <div class="bench__prop bench__prop--2 board">
+              <div class="mini"><span class="box box--sketch" style="--k:0">Eingang</span><span class="link link--sketch" style="--k:1"></span><span class="box box--sketch" style="--k:2">Bot</span><span class="link link--sketch" style="--k:3"></span><span class="box box--sketch" style="--k:4">Antwort</span></div>
+              <div class="mini mini--low"><span class="link link--sketch link--down" style="--k:5"></span><span class="box box--sketch" style="--k:6">Datenbank</span></div>
+            </div>
+            <div class="bench__prop bench__prop--3 code">
+              <span class="code__line" style="--k:0"><b>wenn</b> ticket.neu:</span>
+              <span class="code__line" style="--k:1">  frage = lies(ticket)</span>
+              <span class="code__line" style="--k:2">  text = schreibe(frage)</span>
+              <span class="code__line" style="--k:3">  sende(text)</span>
+            </div>
+            <div class="bench__prop bench__prop--4 run">
+              <p class="live"><span class="switch"><b></b></span>läuft</p>
+              <div class="run__lane">
+                <div class="run__half"><span class="chip run__chip" style="--k:0">Ticket</span><span class="chip run__chip" style="--k:1">Anfrage</span><span class="chip run__chip" style="--k:2">Termin</span></div>
+                <span class="run__mid"><svg class="icon"><use href="#i-bot"/></svg></span>
+                <div class="run__half run__half--out"><span class="chip run__chip" style="--k:0"><svg class="icon"><use href="#i-check"/></svg>gelöst</span><span class="chip run__chip" style="--k:1"><svg class="icon"><use href="#i-check"/></svg>beantwortet</span><span class="chip run__chip" style="--k:2"><svg class="icon"><use href="#i-check"/></svg>gebucht</span></div>
+              </div>
+              <div class="run__lane">
+                <div class="run__half"><span class="chip run__chip" style="--k:0">Bestellung</span><span class="chip run__chip" style="--k:1">Rückfrage</span><span class="chip run__chip" style="--k:2">Rechnung</span></div>
+                <span class="run__mid"><svg class="icon"><use href="#i-bot"/></svg></span>
+                <div class="run__half run__half--out"><span class="chip run__chip" style="--k:0"><svg class="icon"><use href="#i-check"/></svg>bestätigt</span><span class="chip run__chip" style="--k:1"><svg class="icon"><use href="#i-check"/></svg>geklärt</span><span class="chip run__chip" style="--k:2"><svg class="icon"><use href="#i-check"/></svg>verschickt</span></div>
+              </div>
+            </div>
+          </div>
+        </figure>
       </div>
     </div>
   </section>
