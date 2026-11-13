@@ -463,6 +463,71 @@
     }
   });
 
+  /* ---------- the robot at the close: a wave, a message in, an answer out ---------- */
+  const hello = $('.hello');
+  if (hello && !reduced.matches && 'IntersectionObserver' in window && hello.animate) {
+    const bot = $('.robot', hello);
+    const say = $('.robot__say', hello);
+    const mail = $('.hello__mail', hello);
+    const mailIcon = $('use', mail);
+    const mailText = $('span', mail);
+    const look = (x, y) => { bot.style.setProperty('--look-x', x + 'px'); bot.style.setProperty('--look-y', y + 'px'); };
+    const pause = (ms) => new Promise((done) => setTimeout(done, ms));
+    // the message travels between the left edge of the panel column and the robot's chest
+    const fly = (icon, text, inward) => {
+      mailIcon.setAttribute('href', '#i-' + icon);
+      mailText.textContent = text;
+      const scale = parseFloat(getComputedStyle(hello).getPropertyValue('--robot-scale')) || 1;
+      const box = hello.getBoundingClientRect();
+      const w = mail.offsetWidth, h = mail.offsetHeight;
+      // at the robot's chest, and out to the side where there is room for it
+      const nearX = (box.width - w) / 2, nearY = box.height - 58 * scale - h / 2;
+      const farX = box.left > w + 60 ? -(w + 36 * scale) : box.width + 16 * scale;
+      const far = `translate(${farX}px, ${box.height - 150 * scale}px)`;
+      const near = `translate(${nearX}px, ${nearY}px)`;
+      const frames = inward
+        ? [{ transform: far, opacity: 0 }, { opacity: 1, offset: 0.2 }, { transform: near, opacity: 1, offset: 0.86 }, { transform: near + ' scale(0.6)', opacity: 0 }]
+        : [{ transform: near + ' scale(0.6)', opacity: 0 }, { transform: near, opacity: 1, offset: 0.14 }, { opacity: 1, offset: 0.8 }, { transform: far, opacity: 0 }];
+      return mail.animate(frames, { duration: 1300, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }).finished;
+    };
+    let seen = false, running = false;
+    const round = async () => {
+      // hello
+      say.textContent = 'Hallo!';
+      look(0, 0);
+      hello.classList.add('is-up');
+      await pause(380);
+      hello.classList.add('is-waving');
+      await pause(2200);
+      hello.classList.remove('is-waving', 'is-up');
+      await pause(500);
+      // a message comes in
+      say.textContent = 'Schreib mir einfach.';
+      look(-8, 3);
+      await fly('mail', 'Deine Nachricht', true);
+      bot.classList.add('is-pulse');
+      setTimeout(() => bot.classList.remove('is-pulse'), 420);
+      say.textContent = 'Angekommen!';
+      bot.classList.add('is-happy');
+      await pause(1100);
+      // and the answer goes back
+      bot.classList.remove('is-happy');
+      say.textContent = 'Antwort ist unterwegs.';
+      look(-8, 3);
+      await fly('check', 'Antwort', false);
+      look(0, 0);
+      await pause(1300);
+    };
+    const loop = async () => {
+      if (running) return;
+      running = true;
+      while (seen && !document.hidden) await round();
+      running = false;
+    };
+    new IntersectionObserver(([e]) => { seen = e.isIntersecting; if (seen) loop(); }, { threshold: 0.35 }).observe(hello);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && seen) loop(); });
+  }
+
   /* ---------- copy the address ---------- */
   $$('[data-copy]').forEach((btn) => {
     const label = $('span', btn);

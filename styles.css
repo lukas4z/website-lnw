@@ -324,6 +324,14 @@ html:not(.js) .stage__toggle { display: none; }
 .contact__say { grid-column: 1 / span 7; display: grid; gap: var(--space-lg); }
 .contact__say h2 { max-width: 12ch; font-size: var(--text-display); }
 .contact__do { grid-column: 9 / span 4; display: grid; gap: var(--space-md); justify-items: start; }
+/* the robot at the close: it waves, takes a message and sends the answer back */
+.hello { position: relative; width: calc(200px * var(--robot-scale)); height: calc(240px * var(--robot-scale) + var(--space-xl)); margin-bottom: var(--space-sm); --robot-scale: 1.05; }
+.hello .robot { position: absolute; top: auto; bottom: 0; left: calc(50% - 100px); --look-x: 0px; --look-y: 0px; }
+.hello .robot__arm { transition: transform var(--dur-long) var(--ease-out); }
+.hello.is-up .robot__arm--r { transform: rotate(-150deg); }
+.hello.is-waving .robot__arm--r { animation: wave 520ms var(--ease-in-out) 4 alternate; }
+@keyframes wave { from { transform: rotate(-134deg); } to { transform: rotate(-168deg); } }
+.hello__mail { left: 0; top: 0; }
 .contact__mail { font-size: clamp(0.8125rem, 3.6vw, 1.25rem); white-space: nowrap; color: var(--color-ink); text-decoration: none; }
 .contact__mail:hover { text-decoration: underline; text-decoration-color: var(--color-accent); }
 
@@ -414,6 +422,7 @@ html:not(.js) .stage__toggle { display: none; }
   .cut { grid-template-columns: repeat(5, auto); grid-template-areas: "a b c d e" "x x x y y"; }
 }
 @media (max-width: 40rem) {
+  .hello { --robot-scale: 0.72; }
   .robot__say { display: none; }
   .way__step { grid-column: 1 / -1; grid-template-rows: auto auto auto auto; }
   .way__rule::before, .way__rule > .a-draw { right: 0; }
@@ -424,6 +433,8 @@ html:not(.js) .stage__toggle { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .hello .robot__arm { transition: none; }
+  .hello.is-waving .robot__arm--r { animation: none; }
   .seg.is-auto button[aria-selected="true"]::after { animation: none; }
   .js .who__stack > .who__panel, .seg button { transition: none; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
