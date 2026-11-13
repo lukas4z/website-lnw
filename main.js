@@ -404,8 +404,7 @@
     }
     $$('.tile[data-play]').forEach((tile) => {
       tile.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && tile.classList.contains('is-playing')) run(tile); });
-      const btn = $('.tile__play', tile);
-      if (btn) btn.addEventListener('click', () => run(tile));
+      tile.addEventListener('click', () => run(tile));
     });
   }
 

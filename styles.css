@@ -52,7 +52,6 @@ figure { margin: 0; }
 .btn--clear { background: color-mix(in oklab, var(--color-light) 82%, transparent); color: var(--color-ink); box-shadow: var(--edge-light), var(--shadow-card); }
 .btn--clear:hover { background: var(--color-light); }
 .btn--small { min-height: 44px; padding: 0 var(--space-md); font-size: var(--text-sm); }
-.btn--icon { width: 44px; min-height: 44px; padding: 0; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
 
 .seg { display: inline-flex; gap: var(--space-2xs); max-width: 100%; padding: var(--space-2xs); border-radius: var(--radius-pill); background: color-mix(in oklab, var(--color-shade) 38%, transparent); overflow-x: auto; }
@@ -221,10 +220,8 @@ html:not(.js) .stage__toggle { display: none; }
 .tile__text { position: relative; }
 .tile .chip { min-height: 44px; font-size: 0.9375rem; }
 .tile--wide { grid-column: span 7; } .tile--narrow { grid-column: span 5; }
-.tile__text { display: grid; gap: var(--space-sm); padding-inline-end: var(--space-2xl); }
+.tile__text { display: grid; gap: var(--space-sm); }
 .tile__text p { max-width: 34ch; }
-.tile__play { position: absolute; top: var(--space-lg); right: var(--space-lg); }
-html:not(.js) .tile__play { display: none; }
 .demo { position: relative; align-self: end; }
 
 .flow { display: flex; align-items: center; }
