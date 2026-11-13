@@ -35,42 +35,113 @@
     spied.forEach((s) => spy.observe(s));
   }
 
-  /* ---------- the aura: prism fans on a fixed canvas; the scroll turns it ---------- */
-  const aura = $('.aura canvas');
-  if (aura) {
-    const paint = () => {
-      const W = 520, H = Math.round((520 * innerHeight) / innerWidth);
-      aura.width = W; aura.height = H;
-      const g = aura.getContext('2d');
-      const spec = ['--spec-1', '--spec-2', '--spec-3', '--spec-4'].map((n) => token(n));
-      const white = token('--color-ink');
-      const u = Math.min(W, H);
-      const fan = (fx, fy, tx, ty, w0, w1, alpha) => {
-        const dx = tx - fx, dy = ty - fy, len = Math.hypot(dx, dy);
-        const nx = -dy / len, ny = dx / len;
-        const band = (o0, o1, a0, a1, colour, al) => {
-          g.beginPath();
-          g.moveTo(fx + nx * o0, fy + ny * o0);
-          g.lineTo(fx + nx * (o0 + a0), fy + ny * (o0 + a0));
-          g.lineTo(tx + nx * (o1 + a1), ty + ny * (o1 + a1));
-          g.lineTo(tx + nx * o1, ty + ny * o1);
-          g.closePath();
-          g.fillStyle = colour; g.globalAlpha = al; g.fill();
-        };
-        spec.forEach((colour, i) => band(i * w0, i * w1, w0, w1, colour, alpha));
-        band(-w0 * 0.6, -w1 * 0.4, w0 * 0.6, w1 * 0.4, white, alpha * 0.9);
-      };
-      g.clearRect(0, 0, W, H);
-      g.globalCompositeOperation = 'lighter';
-      fan(W * 1.02, H * 0.02, W * 0.36, H * 0.98, u * 0.012, u * 0.07, 0.4);
-      fan(W * 0.62, -H * 0.05, W * 0.08, H * 0.62, u * 0.006, u * 0.035, 0.22);
-      fan(W * 0.98, H * 0.55, W * 0.6, H * 1.1, u * 0.008, u * 0.05, 0.24);
-      g.globalAlpha = 1;
-      g.globalCompositeOperation = 'source-over';
+  /* ---------- space: stars, a little colour in the dark, and one wide arc of light ---------- */
+  const sky = $('.space__sky');
+  const planet = $('.space__planet');
+  if (sky) {
+    const spec = ['--spec-1', '--spec-2', '--spec-3', '--spec-4'].map((n) => token(n));
+    const ink = token('--color-ink'), paper = token('--color-paper');
+    const alpha = (colour, a) => colour.replace(')', ' / ' + a + ')');
+    const fit = (cv) => {
+      const dpr = Math.min(1.5, devicePixelRatio || 1);
+      const r = cv.getBoundingClientRect();
+      cv.width = Math.round(cv.clientWidth * dpr);
+      cv.height = Math.round(cv.clientHeight * dpr);
+      const g = cv.getContext('2d');
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { g, W: cv.clientWidth, H: cv.clientHeight };
     };
-    paint();
-    let raf = 0;
-    addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(paint); });
+    // a small seeded generator, so the sky is the same on every visit
+    const rand = (seed) => () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const glow = (g, x, y, r, colour, a) => {
+      const grd = g.createRadialGradient(x, y, 0, x, y, r);
+      grd.addColorStop(0, alpha(colour, a)); grd.addColorStop(1, alpha(colour, 0));
+      g.fillStyle = grd; g.fillRect(x - r, y - r, r * 2, r * 2);
+    };
+    const paintSky = () => {
+      const { g, W, H } = fit(sky);
+      g.clearRect(0, 0, W, H);
+      // low-key colour in the dark: three wide hazes
+      glow(g, W * 0.16, H * 0.2, Math.max(W, H) * 0.5, spec[3], 0.1);
+      glow(g, W * 0.62, H * 0.42, Math.max(W, H) * 0.42, spec[2], 0.055);
+      glow(g, W * 0.9, H * 0.08, Math.max(W, H) * 0.36, spec[0], 0.07);
+      // stars
+      const rnd = rand(20261113);
+      const count = Math.round((W * H) / 2600);
+      for (let i = 0; i < count; i++) {
+        const x = rnd() * W, y = rnd() * H, big = rnd() > 0.93;
+        const r = big ? 0.9 + rnd() * 0.9 : 0.35 + rnd() * 0.55;
+        const tint = rnd() > 0.82 ? spec[Math.floor(rnd() * 4)] : ink;
+        g.globalAlpha = big ? 0.75 + rnd() * 0.25 : 0.25 + rnd() * 0.5;
+        g.fillStyle = tint;
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+      g.globalAlpha = 1;
+    };
+
+    const paintPlanet = () => {
+      if (!planet) return;
+      const { g, W, H } = fit(planet);
+      const vh = H / 1.5;
+      g.clearRect(0, 0, W, H);
+      const narrow = W < vh * 0.9;
+      const R = narrow ? vh * 0.9 : Math.max(vh * 0.92, W * 0.46);
+      const cx = narrow ? W * 0.72 : W * 0.88, cy = vh * 0.7 + R;
+      const lightAngle = -Math.PI * 0.72; // the light comes from the upper left
+
+      // the arc: the whole spectrum as light, strongest toward the upper left
+      const halo = document.createElement('canvas');
+      halo.width = planet.width; halo.height = planet.height;
+      const h = halo.getContext('2d');
+      h.setTransform(planet.width / W, 0, 0, planet.height / H, 0, 0);
+      const ring = h.createRadialGradient(cx, cy, R * 0.84, cx, cy, R * 1.24);
+      const at = (r) => (r - 0.84) / 0.4;
+      ring.addColorStop(0, alpha(spec[2], 0));
+      ring.addColorStop(at(0.95), alpha(spec[2], 0.1));
+      ring.addColorStop(at(0.995), alpha(ink, 0.55));
+      ring.addColorStop(at(1.012), alpha(spec[1], 0.42));
+      ring.addColorStop(at(1.04), alpha(spec[0], 0.3));
+      ring.addColorStop(at(1.085), alpha(spec[3], 0.2));
+      ring.addColorStop(at(1.16), alpha(spec[3], 0.07));
+      ring.addColorStop(1, alpha(spec[3], 0));
+      h.fillStyle = ring; h.fillRect(0, 0, W, H);
+      // keep it where the light falls
+      const lx = cx + Math.cos(lightAngle) * R, ly = cy + Math.sin(lightAngle) * R;
+      const fall = h.createRadialGradient(lx, ly, R * 0.15, lx, ly, R * 1.5);
+      fall.addColorStop(0, alpha(ink, 1)); fall.addColorStop(0.55, alpha(ink, 0.5)); fall.addColorStop(1, alpha(ink, 0));
+      h.globalCompositeOperation = 'destination-in';
+      h.fillStyle = fall; h.fillRect(0, 0, W, H);
+
+      // no solid body: only the light that bends around it, and a little less sky inside the arc
+      const inside = g.createRadialGradient(cx, cy, R * 0.6, cx, cy, R);
+      inside.addColorStop(0, alpha(paper, 0.7)); inside.addColorStop(1, alpha(paper, 0));
+      g.fillStyle = inside; g.fillRect(0, 0, W, H);
+      g.drawImage(halo, 0, 0, W, H);
+    };
+
+    const paintSpace = () => { paintSky(); paintPlanet(); };
+    paintSpace();
+    let raf = 0, lastW = innerWidth;
+    addEventListener('resize', () => {
+      if (innerWidth === lastW && matchMedia('(pointer: coarse)').matches) return; // a phone's address bar resizing is not a new sky
+      lastW = innerWidth;
+      cancelAnimationFrame(raf); raf = requestAnimationFrame(paintSpace);
+    });
+
+    // the pointer shifts the planes a little, the far one least
+    if (!reduced.matches && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      let tx = 0, ty = 0, x = 0, y = 0, running = false;
+      const step = () => {
+        x += (tx - x) * 0.06; y += (ty - y) * 0.06;
+        document.documentElement.style.setProperty('--px', x.toFixed(3));
+        document.documentElement.style.setProperty('--py', y.toFixed(3));
+        if (Math.abs(tx - x) > 0.002 || Math.abs(ty - y) > 0.002) requestAnimationFrame(step); else running = false;
+      };
+      addEventListener('pointermove', (e) => {
+        tx = (e.clientX / innerWidth) * 2 - 1; ty = (e.clientY / innerHeight) * 2 - 1;
+        if (!running) { running = true; requestAnimationFrame(step); }
+      }, { passive: true });
+    }
   }
 
   let pageTick = false;
