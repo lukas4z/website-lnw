@@ -164,21 +164,38 @@
     const count = $('.screen__count', rig);
     const starts = $$('.task', rig).map((t) => parseFloat(t.style.getPropertyValue('--a')));
     const total = starts.length;
-    let last = -1, lastDone = 0, idle = 0;
+    let last = -1, lastDone = 0, idle = 0, busy = false, busyTimer = 0;
     const look = (x, y) => { robot.style.setProperty('--look-x', x + 'px'); robot.style.setProperty('--look-y', y + 'px'); };
     const flash = (cls, ms) => { robot.classList.remove(cls); void robot.offsetWidth; robot.classList.add(cls); setTimeout(() => robot.classList.remove(cls), ms); };
+    // with nothing to scroll yet, the robot is already at work: typing in bursts, eyes on its keys
+    const idleWork = (on) => {
+      if (on === busy) return;
+      busy = on;
+      clearInterval(busyTimer);
+      if (!on || reduced.matches) return;
+      let k = 0;
+      const beat = () => {
+        k++;
+        const typing = k % 4 !== 0;
+        robot.classList.toggle('is-typing', typing);
+        look(typing ? [7, -5, 4][k % 3] : 0, typing ? [5, 4, 6][k % 3] : 0);
+      };
+      beat();
+      busyTimer = setInterval(beat, 900);
+    };
     const update = (p) => {
       const done = starts.filter((a) => p >= a + 0.1).length;
       const working = p > starts[0] - 0.03 && done < total;
       count.textContent = `${done} von ${total}`;
-      say.textContent = done === total ? 'alles erledigt' : working ? `${done} von ${total} erledigt` : 'wartet';
+      say.textContent = done === total ? 'alles erledigt' : working ? `${done} von ${total} erledigt` : 'arbeitet';
+      idleWork(!working && done < total);
       robot.classList.toggle('is-happy', done === total);
       if (working) {
         look(-9, -4);
         robot.classList.add('is-typing');
         clearTimeout(idle);
         idle = setTimeout(() => robot.classList.remove('is-typing'), 180);
-      } else {
+      } else if (done === total) {
         look(0, 0);
         robot.classList.remove('is-typing');
       }
@@ -191,6 +208,18 @@
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
+  }
+
+  // the second robot, at the close, looks around while it waits for an answer
+  const greeter = $('.close__bot .robot');
+  if (greeter && !reduced.matches) {
+    const glances = [[0, 0], [-7, 2], [0, 0], [7, 2], [0, -3]];
+    let g = 0;
+    setInterval(() => {
+      g = (g + 1) % glances.length;
+      greeter.style.setProperty('--look-x', glances[g][0] + 'px');
+      greeter.style.setProperty('--look-y', glances[g][1] + 'px');
+    }, 1600);
   }
 
   // the robot blinks now and then, wherever it sits

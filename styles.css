@@ -314,6 +314,10 @@ main, .foot, .nav { position: relative; z-index: 1; }
 .done .tick { background: var(--color-accent); color: var(--color-accent-ink); box-shadow: none; opacity: var(--v); transform: scale(calc(0.4 + 0.6 * var(--v))); }
 .done .tick .icon { opacity: 1; }
 
+/* the robot is never quite still */
+.robot__head, .robot__antenna, .robot__ear { animation: nod 2.8s var(--ease-in-out) infinite alternate; }
+@keyframes nod { to { translate: 0 -3px; } }
+
 /* ---------- act 2: the statement ---------- */
 .say { padding-block: clamp(96px, 16svh, 200px) 0; margin: 0; }
 .say__text { max-width: 15em; font-size: clamp(2.5rem, 5vw + 0.5rem, 5.5rem); line-height: 1.02; }
@@ -447,7 +451,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
   html { scroll-behavior: auto; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
   .space__sky, .space__planet { transform: none; }
-  .task__in, .js .line > span { animation: none; }
+  .task__in, .js .line > span, .robot__head, .robot__antenna, .robot__ear { animation: none; }
   .robot.is-pulse .robot__antenna::before, .robot.is-typing .robot__arm--l, .robot.is-typing .robot__arm--r { animation: none; }
   .robot__head, .robot__eye, .tile::before { transition: none; }
   .is-playing .a-fade, .is-playing .a-in, .is-playing .a-draw, .is-playing .a-dim, .is-playing .a-blip, .is-playing .a-run, .is-playing .a-slide, .is-playing .chip--cut::after { animation: none; }
