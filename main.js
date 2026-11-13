@@ -60,21 +60,52 @@
     };
     const paintSky = () => {
       const { g, W, H } = fit(sky);
-      g.clearRect(0, 0, W, H);
-      // low-key colour in the dark: three wide hazes
-      glow(g, W * 0.16, H * 0.2, Math.max(W, H) * 0.5, spec[3], 0.1);
-      glow(g, W * 0.62, H * 0.42, Math.max(W, H) * 0.42, spec[2], 0.055);
-      glow(g, W * 0.9, H * 0.08, Math.max(W, H) * 0.36, spec[0], 0.07);
-      // stars
+      const big = Math.max(W, H);
       const rnd = rand(20261113);
+      const gauss = () => (rnd() + rnd() + rnd() + rnd() - 2) / 2; // roughly -1..1, dense in the middle
+      g.clearRect(0, 0, W, H);
+
+      // nebulae: clouds built from many faint puffs, each in one low-key hue
+      const cloud = (cx, cy, spread, colour, strength, puffs) => {
+        g.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < puffs; i++) {
+          const x = cx + gauss() * spread * 1.5, y = cy + gauss() * spread * 0.8;
+          glow(g, x, y, spread * (0.25 + rnd() * 0.5), colour, strength * (0.4 + rnd() * 0.6));
+        }
+        g.globalCompositeOperation = 'source-over';
+      };
+      cloud(W * 0.18, H * 0.24, big * 0.22, spec[3], 0.03, 46);
+      cloud(W * 0.3, H * 0.18, big * 0.12, spec[2], 0.016, 26);
+      cloud(W * 0.78, H * 0.12, big * 0.16, spec[0], 0.02, 34);
+      cloud(W * 0.6, H * 0.5, big * 0.18, spec[2], 0.014, 30);
+      cloud(W * 0.08, H * 0.82, big * 0.16, spec[3], 0.018, 28);
+
+      // the band of the galaxy: dust and a great many faint stars along one diagonal
+      const ax = -W * 0.05, ay = H * 0.86, bx = W * 1.05, by = H * 0.04;
+      const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+      g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 70; i++) {
+        const t = rnd(), o = gauss() * big * 0.05;
+        glow(g, ax + dx * t + nx * o, ay + dy * t + ny * o, big * (0.05 + rnd() * 0.07), i % 5 === 0 ? spec[3] : ink, 0.012 + rnd() * 0.012);
+      }
+      g.globalCompositeOperation = 'source-over';
+      const band = Math.round((W * H) / 900);
+      for (let i = 0; i < band; i++) {
+        const t = rnd(), o = gauss() * big * 0.085;
+        g.globalAlpha = 0.12 + rnd() * 0.4;
+        g.fillStyle = rnd() > 0.9 ? spec[Math.floor(rnd() * 4)] : ink;
+        g.beginPath(); g.arc(ax + dx * t + nx * o, ay + dy * t + ny * o, 0.25 + rnd() * 0.5, 0, Math.PI * 2); g.fill();
+      }
+
+      // the nearer stars, everywhere
       const count = Math.round((W * H) / 2600);
       for (let i = 0; i < count; i++) {
-        const x = rnd() * W, y = rnd() * H, big = rnd() > 0.93;
-        const r = big ? 0.9 + rnd() * 0.9 : 0.35 + rnd() * 0.55;
-        const tint = rnd() > 0.82 ? spec[Math.floor(rnd() * 4)] : ink;
-        g.globalAlpha = big ? 0.75 + rnd() * 0.25 : 0.25 + rnd() * 0.5;
-        g.fillStyle = tint;
+        const x = rnd() * W, y = rnd() * H, bright = rnd() > 0.93;
+        const r = bright ? 0.9 + rnd() * 0.9 : 0.35 + rnd() * 0.55;
+        g.globalAlpha = bright ? 0.75 + rnd() * 0.25 : 0.25 + rnd() * 0.5;
+        g.fillStyle = rnd() > 0.82 ? spec[Math.floor(rnd() * 4)] : ink;
         g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+        if (bright && rnd() > 0.5) { g.globalAlpha = 1; glow(g, x, y, r * 7, ink, 0.2); }
       }
       g.globalAlpha = 1;
     };
@@ -97,12 +128,12 @@
       const ring = h.createRadialGradient(cx, cy, R * 0.84, cx, cy, R * 1.24);
       const at = (r) => (r - 0.84) / 0.4;
       ring.addColorStop(0, alpha(spec[2], 0));
-      ring.addColorStop(at(0.95), alpha(spec[2], 0.1));
-      ring.addColorStop(at(0.995), alpha(ink, 0.55));
-      ring.addColorStop(at(1.012), alpha(spec[1], 0.42));
-      ring.addColorStop(at(1.04), alpha(spec[0], 0.3));
-      ring.addColorStop(at(1.085), alpha(spec[3], 0.2));
-      ring.addColorStop(at(1.16), alpha(spec[3], 0.07));
+      ring.addColorStop(at(0.95), alpha(spec[2], 0.08));
+      ring.addColorStop(at(0.992), alpha(ink, 0.5));
+      ring.addColorStop(at(1.006), alpha(spec[1], 0.16));
+      ring.addColorStop(at(1.02), alpha(spec[0], 0.14));
+      ring.addColorStop(at(1.05), alpha(spec[3], 0.22));
+      ring.addColorStop(at(1.12), alpha(spec[3], 0.1));
       ring.addColorStop(1, alpha(spec[3], 0));
       h.fillStyle = ring; h.fillRect(0, 0, W, H);
       // keep it where the light falls

@@ -223,17 +223,6 @@ html:not(.js) .tile__play { display: none; }
 .lanes .icon--done { margin-inline-start: auto; color: var(--color-accent); stroke-width: 2.25; }
 
 /* ---------- about: a split ---------- */
-.about { align-items: center; row-gap: var(--space-xl); }
-.about__text { grid-column: 1 / span 7; display: grid; gap: var(--space-lg); }
-.about__text .lead { max-width: 46ch; color: var(--color-ink-2); }
-.facts { display: grid; margin: 0; }
-.facts > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: var(--space-md); padding-block: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
-.facts dt { font-size: var(--text-sm); line-height: 1.9; color: var(--color-muted); }
-.facts dd { margin: 0; color: var(--color-ink); }
-.portrait { grid-column: 9 / span 4; display: grid; place-items: center; aspect-ratio: 4 / 5; border-radius: var(--radius-card); box-shadow: var(--edge-light), var(--shadow-card); }
-.portrait[data-slot] { background: linear-gradient(160deg, var(--color-light), var(--color-shade)); }
-
-.portrait > img { outline: 1px solid color-mix(in oklab, var(--color-ink) 8%, transparent); outline-offset: -1px; }
 
 /* ---------- contact: the second lit ground ---------- */
 
@@ -286,7 +275,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
 /* space: a starfield and one wide, soft arc of light that carries the spectrum.
    Two planes at two speeds; the page's scroll lifts the arc. */
 .space { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.space canvas { position: absolute; left: 0; top: 0; width: 100%; }
+.space canvas { position: absolute; left: -24px; top: -16px; width: calc(100% + 48px); }
 .space__sky { height: 116svh; transform: translate3d(calc(var(--px, 0) * -6px), calc(var(--page-p, 0) * -12svh + var(--py, 0) * -4px), 0); }
 .space__planet { height: 150svh; filter: blur(16px); transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--page-p, 0) * -34svh + var(--py, 0) * -10px), 0); }
 
@@ -342,7 +331,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
 .cut__note { border-top-color: var(--veil-3); }
 
 /* ---------- act 4: who it is for ---------- */
-.who { padding-block: clamp(96px, 14svh, 176px) clamp(48px, 8svh, 96px); }
+.who { padding-block: clamp(96px, 14svh, 176px); }
 .who .head { align-items: end; }
 .lanes.clear { border-radius: var(--radius-panel); }
 .lanes li { border-top-color: var(--line); }
@@ -370,11 +359,6 @@ main, .foot, .nav { position: relative; z-index: 1; }
 .live { font-size: var(--text-md); }
 
 /* ---------- act 6: about ---------- */
-.about-act { padding-block: clamp(96px, 14svh, 176px); }
-.about .lead { color: var(--color-ink-2); }
-.facts > div { border-top-color: var(--line); }
-.portrait { box-shadow: var(--glass-edge), var(--shadow-cast); }
-.portrait > img { filter: grayscale(1) contrast(1.06) brightness(0.96); }
 
 /* ---------- act 7: the close. The last screen, and it holds ---------- */
 .close { display: grid; grid-template-rows: minmax(0, 1fr) auto; height: 100%; padding-top: var(--space-3xl); }
@@ -419,10 +403,10 @@ main, .foot, .nav { position: relative; z-index: 1; }
   .tile.card { width: min(84vw, 26rem); height: min(68svh, 560px); padding: var(--space-lg); }
   .tile.card .demo { zoom: 1.1; }
   .svc__lead { width: 78vw; }
-  .who__say, .lanes, .about__text, .close__say, .foot__bye, .foot__addr, .foot__links { grid-column: 1 / -1; }
+  .who__say, .lanes, .close__say, .foot__addr, .foot__links { grid-column: 1 / -1; }
   .lanes { padding-inline: var(--space-lg); }
   .lanes li { min-height: 72px; font-size: var(--text-md); }
-  .portrait { grid-column: 1 / span 6; max-width: 320px; }
+  
   .path { align-content: start; gap: var(--space-lg); padding-block: calc(var(--space-3xl) + var(--space-xs)) var(--space-lg); }
   .path h2 { font-size: clamp(2rem, 7.5vw, 3rem); }
   .path__steps { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-md); padding-left: 0; }
@@ -440,8 +424,8 @@ main, .foot, .nav { position: relative; z-index: 1; }
 }
 @media (max-width: 40rem) {
   .robot__say { font-size: var(--text-xs); }
-  .portrait { grid-column: 1 / -1; }
-  .facts > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  
+  
   .actions .btn { flex: 1 1 auto; }
 }
 
