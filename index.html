@@ -326,18 +326,32 @@
               <button class="btn btn--clear" type="button" data-copy="kontakt@lnw-automations-solutions.de"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Adresse kopieren</span></button>
             </div>
           </div>
-          <div class="close__bot">
-            <div class="robot" aria-hidden="true">
-          <p class="robot__say">Was darf ich übernehmen?</p>
-          <span class="robot__antenna"></span>
-          <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
-          <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
-          <span class="robot__neck"></span>
-          <span class="robot__body"></span>
-          <span class="robot__arm robot__arm--l"></span><span class="robot__arm robot__arm--r"></span>
-          <span class="robot__keys"></span>
-        </div>
-          </div>
+          <figure class="relay" aria-hidden="true">
+            <svg class="relay__wires" focusable="false"></svg>
+            <span class="relay__parcel"><svg class="icon"><use href="#i-mail"/></svg><span></span></span>
+            <ul class="relay__col">
+              <li class="relay__node" data-in="mail"><svg class="icon"><use href="#i-mail"/></svg>E-Mail</li>
+              <li class="relay__node" data-in="chat"><svg class="icon"><use href="#i-message-square"/></svg>Chat</li>
+              <li class="relay__node" data-in="form"><svg class="icon"><use href="#i-file-text"/></svg>Formular</li>
+            </ul>
+            <div class="relay__bot">
+              <div class="robot">
+                <p class="robot__say">arbeitet</p>
+                <span class="robot__antenna"></span>
+                <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
+                <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
+                <span class="robot__neck"></span>
+                <span class="robot__body"></span>
+                <span class="robot__arm robot__arm--l"></span><span class="robot__arm robot__arm--r"></span>
+                <span class="robot__keys"></span>
+              </div>
+            </div>
+            <ul class="relay__col">
+              <li class="relay__node" data-out="reply"><svg class="icon"><use href="#i-send"/></svg>Antworten</li>
+              <li class="relay__node" data-out="data"><svg class="icon"><use href="#i-database"/></svg>Datenbank</li>
+              <li class="relay__node" data-out="calendar"><svg class="icon"><use href="#i-calendar-check"/></svg>Kalender</li>
+            </ul>
+          </figure>
         </div>
         <footer class="foot">
           <div class="cols foot__grid">

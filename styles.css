@@ -293,7 +293,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
 .rig { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(40px, 9svh, 96px); display: grid; grid-template-columns: calc(200px * var(--robot-scale)) minmax(0, 320px); column-gap: var(--space-xl); align-items: end; padding-bottom: var(--space-xl); --robot-scale: 1.7; }
 .rig::after { content: ""; position: absolute; left: calc(-1 * var(--space-lg)); right: calc(-1 * var(--space-lg)); bottom: 0; height: 16px; border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); box-shadow: var(--glass-edge), var(--shadow-cast); z-index: 2; }
 .rig .robot { top: 24px; }
-.rig .robot__say, .close__bot .robot__say { padding: var(--space-3xs) var(--space-xs); font-size: 0.625rem; }
+.rig .robot__say, .relay .robot__say { padding: var(--space-3xs) var(--space-xs); font-size: 0.625rem; }
 .rig__inbox { position: absolute; left: calc(40px * var(--robot-scale)); bottom: calc(150px * var(--robot-scale) + var(--space-xl)); width: 0; height: 0; z-index: 4; }
 .task { position: absolute; left: 0; top: 0; --t: clamp(0, calc((var(--sc-p, 0) - var(--a)) / 0.1), 1); --ox: var(--x); --oy: var(--y); transform: translate(-50%, -50%) translate(calc(var(--ox) * (1 - var(--t))), calc(var(--oy) * (1 - var(--t)) - sin(var(--t) * 180deg) * 7svh)) rotate(calc(var(--r) * (1 - var(--t)))) scale(calc(var(--s, 1) * (1 - 0.62 * var(--t)))); opacity: calc(clamp(0, (1 - var(--t)) * 5, 1) * clamp(0, calc((var(--sc-p, 0) - var(--chips-from, -1)) / 0.06), 1)); will-change: transform, opacity; }
 .task__in { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 48px; padding: 0 var(--space-md) 0 var(--space-sm); border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.8); backdrop-filter: blur(16px) saturate(1.8); box-shadow: var(--glass-edge), var(--shadow-chip); font-size: 0.9375rem; font-weight: 500; color: var(--color-ink); white-space: nowrap; animation: bob 7s var(--ease-in-out) infinite alternate; animation-delay: calc(var(--a) * -20s); }
@@ -416,12 +416,30 @@ main, .foot, .nav { position: relative; z-index: 1; }
 /* ---------- act 7: the close. The last screen, and it holds ---------- */
 .close { display: grid; grid-template-rows: minmax(0, 1fr) auto; height: 100%; padding-top: var(--space-3xl); }
 .close__main { align-self: center; align-items: center; row-gap: var(--space-xl); }
-.close__say { grid-column: 1 / span 7; display: grid; gap: var(--space-lg); justify-items: start; }
+.close__say { grid-column: 1 / span 5; display: grid; gap: var(--space-lg); justify-items: start; }
 .close__say h2 { max-width: 10ch; font-size: clamp(3rem, 5.6vw + 1rem, 6.75rem); line-height: 0.98; }
 .close__say .lead { color: var(--color-ink-2); }
 .close__mail { font-size: clamp(0.8125rem, 3.6vw, 1.25rem); white-space: nowrap; color: var(--color-ink); text-decoration-color: var(--color-accent); text-underline-offset: 0.3em; }
-.close__bot { grid-column: 9 / span 4; justify-self: center; position: relative; height: calc(240px * var(--robot-scale)); --robot-scale: 1.35; }
-.close__bot .robot { top: 0; }
+/* the relay: work arrives on the left, the robot handles it, results leave on the right */
+.relay { position: relative; grid-column: 6 / span 7; display: grid; grid-template-columns: auto minmax(var(--space-xl), 1fr) calc(200px * var(--robot-scale)) minmax(var(--space-xl), 1fr) auto; align-items: center; --robot-scale: 1.25; }
+.relay__wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.relay__wire { fill: none; stroke: var(--veil-3); stroke-width: 1.5; stroke-linecap: round; transition: stroke var(--dur-short) var(--ease-out); }
+.relay__wire.is-live { stroke: var(--color-accent); }
+.relay__col { display: grid; gap: var(--space-lg); }
+.relay__col:first-of-type { grid-column: 1; }
+.relay__col:last-of-type { grid-column: 5; }
+.relay__col > :nth-child(2) { position: relative; left: var(--space-md); }
+.relay__col:last-of-type > :nth-child(2) { left: calc(-1 * var(--space-md)); }
+.relay__node { position: relative; display: flex; align-items: center; gap: var(--space-xs); min-height: 48px; padding: 0 var(--space-md) 0 var(--space-sm); border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.8); backdrop-filter: blur(16px) saturate(1.8); box-shadow: var(--glass-edge), var(--shadow-chip); font-size: 0.9375rem; font-weight: 500; color: var(--color-ink); white-space: nowrap; }
+.relay__node .icon { color: var(--color-muted); transition: color var(--dur-short) var(--ease-out); }
+.relay__node::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--color-accent); opacity: 0; transition: opacity var(--dur-short) var(--ease-out); }
+.relay__node.is-active .icon { color: var(--color-accent); }
+.relay__node.is-active::after { opacity: 1; }
+.relay__bot { grid-column: 3; position: relative; height: calc(240px * var(--robot-scale)); }
+.relay .robot { position: absolute; top: auto; bottom: 0; left: calc(50% - 100px); --look-x: 0px; --look-y: 0px; }
+.relay__parcel { position: absolute; left: 0; top: 0; z-index: var(--z-raised); display: inline-flex; align-items: center; gap: var(--space-2xs); min-height: 30px; padding: 0 var(--space-sm) 0 var(--space-xs); border-radius: var(--radius-pill); background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-xs); font-weight: 500; white-space: nowrap; box-shadow: var(--edge-top), var(--shadow-chip); opacity: 0; pointer-events: none; transition: opacity var(--dur-micro) var(--ease-out); }
+.relay__parcel.is-on { opacity: 1; }
+.relay__parcel .icon { width: 14px; height: 14px; stroke-width: 2.25; }
 .close .foot { margin: 0; padding-bottom: var(--space-lg); }
 .close .foot__grid { align-items: end; padding-top: var(--space-lg); border-top: var(--rule-hair) solid var(--line); }
 .close .foot__addr { grid-column: 1 / span 5; font-size: var(--text-sm); color: var(--color-ink-2); }
@@ -432,6 +450,8 @@ main, .foot, .nav { position: relative; z-index: 1; }
 
 /* ---------- smaller screens ---------- */
 @media (max-width: 75rem) {
+  .relay { --robot-scale: 1; }
+  .relay__node { padding: 0 var(--space-sm) 0 var(--space-xs); font-size: var(--text-sm); }
   .bench { --robot-scale: 1.2; column-gap: var(--space-lg); }
   .rig { --robot-scale: 1.35; grid-template-columns: calc(200px * var(--robot-scale)) minmax(0, 280px); column-gap: var(--space-lg); }
   .hero__copy { max-width: min(34rem, 44vw); }
@@ -465,12 +485,14 @@ main, .foot, .nav { position: relative; z-index: 1; }
   .path h2 { font-size: clamp(2rem, 7.5vw, 3rem); max-width: none; }
   .path__steps { row-gap: var(--space-md); }
   .bench { align-self: end; --robot-scale: 1.1; grid-template-columns: calc(200px * var(--robot-scale)) minmax(0, 300px); }
-  .close__bot { display: none; }
+  .relay { grid-column: 1 / -1; justify-self: start; width: min(100%, 34rem); --robot-scale: 0.9; }
+  .relay__node { min-height: 40px; padding: 0 var(--space-sm) 0 var(--space-xs); font-size: var(--text-sm); }
   .close__say h2 { font-size: clamp(2.5rem, 10vw, 4.5rem); }
   .close .foot__addr, .close .foot__links, .close .foot__legal { grid-column: 1 / -1; justify-self: start; }
   .close .foot__grid { row-gap: var(--space-sm); }
 }
 @media (max-width: 40rem) {
+  .relay { display: none; }
   .path__step:not(.is-active) p { display: none; }
   .bench { --robot-scale: 0.74; grid-template-columns: calc(200px * var(--robot-scale)) minmax(0, 1fr); column-gap: var(--space-sm); width: 100%; }
   .bench::after { left: 0; right: 0; }
@@ -493,6 +515,7 @@ main, .foot, .nav { position: relative; z-index: 1; }
   .btn, .seg button { transition: background-color var(--dur-short) linear; }
   .space__sky, .space__planet { transform: none; }
   .task__in, .js .line > span, .robot__head, .robot__antenna, .robot__ear, .bench .robot__arm, .run__chip { animation: none !important; }
+  .relay__parcel, .relay__wire, .relay__node::after { transition: none; }
   .path[data-step="3"] .run__chip:first-child { opacity: 1; }
   .robot.is-pulse .robot__antenna::before, .robot.is-typing .robot__arm--l, .robot.is-typing .robot__arm--r { animation: none; }
   .robot__head, .robot__eye, .tile::before { transition: none; }

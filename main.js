@@ -260,16 +260,125 @@
     requestAnimationFrame(tick);
   }
 
-  // the second robot, at the close, looks around while it waits for an answer
-  const greeter = $('.close__bot .robot');
-  if (greeter && !reduced.matches) {
-    const glances = [[0, 0], [-7, 2], [0, 0], [7, 2], [0, -3]];
-    let g = 0;
-    setInterval(() => {
-      g = (g + 1) % glances.length;
-      greeter.style.setProperty('--look-x', glances[g][0] + 'px');
-      greeter.style.setProperty('--look-y', glances[g][1] + 'px');
-    }, 1600);
+  /* ---------- the relay at the close: tasks come in, the robot works, results go out ---------- */
+  const relay = $('.relay');
+  if (relay && !reduced.matches) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = $('.relay__wires', relay);
+    const bot = $('.robot', relay);
+    const botHead = $('.robot__head', relay);
+    const botSay = $('.robot__say', relay);
+    const ins = Object.fromEntries($$('[data-in]', relay).map((n) => [n.dataset.in, n]));
+    const outs = Object.fromEntries($$('[data-out]', relay).map((n) => [n.dataset.out, n]));
+    const parcelIn = $('.relay__parcel', relay);
+    const parcelOut = parcelIn.cloneNode(true);
+    parcelIn.after(parcelOut);
+    const jobs = [
+      { from: 'chat', icon: 'message-square', name: 'Support-Ticket', to: 'reply', result: 'Ticket gelöst' },
+      { from: 'form', icon: 'file-text', name: 'Projektanfrage', to: 'data', result: 'Kontakt angelegt' },
+      { from: 'mail', icon: 'mail', name: 'Terminanfrage', to: 'calendar', result: 'Termin eingetragen' },
+      { from: 'chat', icon: 'message-square', name: 'Rückfrage', to: 'reply', result: 'Beantwortet' },
+      { from: 'mail', icon: 'mail', name: 'Rechnung anfordern', to: 'data', result: 'Rechnung abgelegt' },
+    ];
+    const wires = { in: {}, out: {} };
+    const wire = () => { const p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'relay__wire'); svg.appendChild(p); return p; };
+    Object.keys(ins).forEach((k) => (wires.in[k] = wire()));
+    Object.keys(outs).forEach((k) => (wires.out[k] = wire()));
+    const layout = () => {
+      const s = relay.getBoundingClientRect();
+      if (!s.width) return;
+      svg.setAttribute('viewBox', `0 0 ${s.width} ${s.height}`);
+      const rel = (el) => { const r = el.getBoundingClientRect(); return { l: r.left - s.left, r: r.right - s.left, cy: r.top - s.top + r.height / 2 }; };
+      const hd = rel(botHead);
+      const curve = (a, b) => { const m = (b[0] - a[0]) * 0.5; return `M${a[0]} ${a[1]}C${a[0] + m} ${a[1]} ${b[0] - m} ${b[1]} ${b[0]} ${b[1]}`; };
+      Object.entries(ins).forEach(([k, n], i) => { const r = rel(n); wires.in[k].setAttribute('d', curve([r.r, r.cy], [hd.l - 6, hd.cy + (i - 1) * 14])); });
+      Object.entries(outs).forEach(([k, n], i) => { const r = rel(n); wires.out[k].setAttribute('d', curve([hd.r + 6, hd.cy + (i - 1) * 14], [r.l, r.cy])); });
+    };
+
+    // one clock, so the loop rests while the close is off screen or the tab is hidden
+    const clock = { now: 0, last: 0, running: false, jobs: [] };
+    const frame = (t) => {
+      const dt = Math.min(50, t - (clock.last || t));
+      clock.last = t;
+      if (clock.running) {
+        clock.now += dt;
+        clock.jobs = clock.jobs.filter((job) => {
+          const p = Math.min(1, (clock.now - job.start) / job.dur);
+          if (job.step) job.step(p);
+          if (p < 1) return true;
+          job.done();
+          return false;
+        });
+      }
+      requestAnimationFrame(frame);
+    };
+    const tween = (dur, step) => new Promise((done) => clock.jobs.push({ start: clock.now, dur: Math.max(1, dur), step, done }));
+    const wait = (ms) => tween(ms);
+    const ease = (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+    const look = (x, y) => { bot.style.setProperty('--look-x', x + 'px'); bot.style.setProperty('--look-y', y + 'px'); };
+    const travel = async (el, path, ms, icon, text) => {
+      const len = path.getTotalLength();
+      $('use', el).setAttribute('href', '#i-' + icon);
+      $('span', el).textContent = text;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      const place = (p) => { const pt = path.getPointAtLength(len * ease(p)); el.style.transform = `translate(${pt.x - w / 2}px, ${pt.y - h / 2}px)`; };
+      place(0);
+      path.classList.add('is-live');
+      el.classList.add('is-on');
+      await tween(ms, place);
+      el.classList.remove('is-on');
+      path.classList.remove('is-live');
+    };
+    const inbound = async (job) => {
+      const node = ins[job.from];
+      node.classList.add('is-active');
+      look(-8, 0);
+      await travel(parcelIn, wires.in[job.from], 820, job.icon, job.name);
+      node.classList.remove('is-active');
+    };
+    const work = async (job) => {
+      botSay.textContent = job.name;
+      bot.classList.remove('is-happy');
+      bot.classList.add('is-typing');
+      look(0, 5);
+      await wait(1100);
+      bot.classList.remove('is-typing');
+    };
+    const outbound = async (job) => {
+      const node = outs[job.to];
+      botSay.textContent = 'erledigt';
+      bot.classList.add('is-happy');
+      node.classList.add('is-active');
+      await travel(parcelOut, wires.out[job.to], 820, 'check', job.result);
+      await wait(420);
+      node.classList.remove('is-active');
+    };
+
+    const state = { seen: false, shown: !document.hidden };
+    const sync = () => { clock.running = state.seen && state.shown; };
+    new IntersectionObserver(([e]) => { state.seen = e.isIntersecting; sync(); }, { threshold: 0.3 }).observe(relay);
+    document.addEventListener('visibilitychange', () => { state.shown = !document.hidden; sync(); });
+
+    const start = async () => {
+      layout();
+      if ('ResizeObserver' in window) new ResizeObserver(layout).observe(relay);
+      addEventListener('resize', layout);
+      requestAnimationFrame(frame);
+      await inbound(jobs[0]);
+      for (let i = 0; ; i++) {
+        await work(jobs[i % jobs.length]);
+        await Promise.all([outbound(jobs[i % jobs.length]), wait(300).then(() => inbound(jobs[(i + 1) % jobs.length]))]);
+      }
+    };
+    // on a phone the relay is not shown; it starts as soon as there is room for it
+    let started = false;
+    const begin = () => {
+      if (started || !relay.offsetWidth) return;
+      started = true;
+      start();
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(begin); else begin();
+    addEventListener('resize', begin);
   }
 
   // the robot blinks now and then, wherever it sits
