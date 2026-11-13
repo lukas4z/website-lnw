@@ -180,8 +180,6 @@
     // wires, drawn from where the pieces really are
     const wires = { in: {}, out: {} };
     const parcel = $('.parcel', stage);
-    const parcelIcon = $('use', parcel);
-    const parcelText = $('span', parcel);
     const makeWire = () => {
       const p = document.createElementNS(NS, 'path');
       p.setAttribute('class', 'wire');
@@ -237,65 +235,68 @@
 
     const flash = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); return wait(ms).then(() => el.classList.remove(cls)); };
     const look = (x, y) => { robot.style.setProperty('--look-x', x + 'px'); robot.style.setProperty('--look-y', y + 'px'); };
-    const travel = async (wire, ms, icon, text) => {
+    // two parcels, so a result can leave while the next task is already on its way in
+    const parcelOut = parcel.cloneNode(true);
+    parcel.after(parcelOut);
+    const travel = async (el, wire, ms, icon, text) => {
       const len = wire.getTotalLength();
-      parcelIcon.setAttribute('href', '#i-' + icon);
-      parcelText.textContent = text;
-      const w = parcel.offsetWidth, h = parcel.offsetHeight;
+      $('use', el).setAttribute('href', '#i-' + icon);
+      $('span', el).textContent = text;
+      const w = el.offsetWidth, h = el.offsetHeight;
       const place = (p) => {
         const pt = wire.getPointAtLength(len * ease(p));
-        parcel.style.transform = `translate(${pt.x - w / 2}px, ${pt.y - h / 2}px)`;
+        el.style.transform = `translate(${pt.x - w / 2}px, ${pt.y - h / 2}px)`;
       };
       place(0);
       wire.classList.add('is-live');
-      parcel.classList.add('is-on');
+      el.classList.add('is-on');
       await tween(ms, place);
-      parcel.classList.remove('is-on');
+      el.classList.remove('is-on');
       wire.classList.remove('is-live');
     };
     const type = (el, text, ms) => tween(ms, (p) => { el.textContent = text.slice(0, Math.round(text.length * p)); });
     const note = (node, text) => { $('.node__note', node).textContent = text; };
 
-    const play = async (task) => {
-      const source = ins[task.from], target = outs[task.to];
-      // a task comes in
-      say.textContent = 'neue Aufgabe';
-      look(-6, 0);
+    // a task comes in
+    const inbound = async (task) => {
+      const source = ins[task.from];
       note(source, task.name);
       source.classList.add('is-active');
-      await travel(wires.in[task.from], 1100, task.icon, task.name);
+      await travel(parcel, wires.in[task.from], 760, task.icon, task.name);
       source.classList.remove('is-active');
       flash(robot, 'is-pulse', 420);
+    };
 
-      // the robot works it on screen
+    // the robot works it on screen
+    const work = async (task) => {
       taskIcon.setAttribute('href', '#i-' + task.icon);
       taskName.textContent = task.name;
       steps.forEach((li, i) => { li.dataset.s = 'todo'; li.lastElementChild.textContent = task.steps[i]; });
       out.textContent = '';
       say.textContent = 'arbeitet';
+      robot.classList.remove('is-happy');
       robot.classList.add('is-typing');
       for (let i = 0; i < steps.length; i++) {
         look(9, (i - 1) * 5);
         steps[i].dataset.s = 'run';
-        if (i === 1) await type(out, task.out, 1100); else await wait(800);
+        if (i === 1) await type(out, task.out, 640); else await wait(400);
         steps[i].dataset.s = 'done';
         flash(robot, 'is-blink', 130);
-        await wait(160);
+        await wait(90);
       }
       robot.classList.remove('is-typing');
+    };
 
-      // done: the result goes out
+    // done: the result goes out
+    const outbound = async (task) => {
+      const target = outs[task.to];
       say.textContent = 'erledigt';
       robot.classList.add('is-happy');
       target.classList.add('is-active');
-      await travel(wires.out[task.to], 1100, 'check', task.result);
+      await travel(parcelOut, wires.out[task.to], 760, 'check', task.result);
       note(target, task.result);
-      await wait(900);
+      await wait(380);
       target.classList.remove('is-active');
-      robot.classList.remove('is-happy');
-      look(0, 0);
-      say.textContent = 'wartet';
-      await wait(700);
     };
 
     const state = { seen: false, held: false, shown: !document.hidden };
@@ -320,8 +321,13 @@
       requestAnimationFrame(frame);
       look(0, 0);
       say.textContent = 'wartet';
-      await wait(1100);
-      for (let i = 0; ; i++) await play(tasks[i % tasks.length]);
+      await wait(700);
+      await inbound(tasks[0]);
+      for (let i = 0; ; i++) {
+        await work(tasks[i % tasks.length]);
+        // traffic: the result leaves while the next task is already arriving
+        await Promise.all([outbound(tasks[i % tasks.length]), wait(260).then(() => inbound(tasks[(i + 1) % tasks.length]))]);
+      }
     };
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
   }
