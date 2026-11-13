@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-mode="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,12 +9,14 @@
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="LNW Automation &amp; AI Solutions">
 <meta property="og:description" content="Automation, KI-Bots und Websites für Startups und Communities.">
-<meta name="theme-color" content="#fbfaf7">
+<meta name="theme-color" content="#0b0b0a">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/funnel-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/funnel-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="scrollcraft.css">
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add('js'); try { if (localStorage.getItem('lnw-mode') === 'dark') document.documentElement.dataset.mode = 'dark'; } catch (e) {}</script>
+<noscript><style>[data-sc-in],[data-sc-stagger]>*,[data-sc-cue]{opacity:1!important;transform:none!important}.hero__line{display:none}</style></noscript>
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 <!-- Icons: Lucide (ISC License, lucide.dev) -->
@@ -45,22 +47,20 @@
 </svg>
 
 <a class="skip" href="#main">Zum Inhalt springen</a>
+<div class="aura" aria-hidden="true"><canvas></canvas></div>
+<div class="sc-grain grain" aria-hidden="true"></div>
 
 <header class="nav">
   <nav class="nav__bar" aria-label="Hauptnavigation">
     <a class="wordmark" href="#top" aria-label="LNW Automation &amp; AI Solutions, zum Seitenanfang">LNW</a>
     <ul class="nav__links" id="nav-links">
       <li><a href="#leistungen">Leistungen</a></li>
-      <li><a href="#ablauf">Ablauf</a></li>
       <li><a href="#fuer-wen">Für wen</a></li>
+      <li><a href="#ablauf">Ablauf</a></li>
       <li><a href="#ueber-mich">Über mich</a></li>
     </ul>
     <div class="nav__end">
-      <a class="btn btn--clear btn--small" href="#kontakt">Projekt anfragen</a>
-      <button class="nav__mode" type="button" aria-label="Zwischen hellem und dunklem Design wechseln">
-        <svg class="icon icon--lg icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
-        <svg class="icon icon--lg icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
-      </button>
+      <a class="btn btn--small" href="#kontakt">Projekt anfragen</a>
       <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menü">
         <svg class="icon icon--lg icon--open" aria-hidden="true"><use href="#i-menu"/></svg>
         <svg class="icon icon--lg icon--close" aria-hidden="true"><use href="#i-x"/></svg>
@@ -71,24 +71,32 @@
 
 <main id="main">
 
-<section class="hero" id="top">
- <div class="hero__panel dark">
-  <div class="light" aria-hidden="true"><canvas data-light="hero"></canvas></div>
-  <div class="container hero__inner">
+  <!-- 1 · the desk: scroll feeds the pile of tasks to the robot -->
+  <section id="top" data-sc-act="pin" data-sc-span="4">
+    <div data-sc-stage class="desk-stage">
+      <div class="hero__copy" data-sc-cue="0 0.2 0">
+        <h1><span class="line"><span style="--i:0">Routine erledigt</span></span> <span class="line"><span style="--i:1">ab jetzt dein Bot.</span></span></h1>
+        <p class="lead">Ich automatisiere Abläufe und baue KI&#8209;Bots und Websites für Startups und Communities.</p>
+        <div class="actions">
+          <a class="btn" href="#kontakt">Projekt anfragen</a>
+          <a class="btn btn--clear" href="#leistungen">Leistungen ansehen</a>
+        </div>
+      </div>
+      <p class="hero__line" data-sc-cue="0.2 0.44">Erst stapelt es sich.</p>
+      <p class="hero__line" data-sc-cue="0.4 0.72">Dann übernimmt dein Bot.</p>
+      <p class="hero__line" data-sc-cue="0.7 1">Und du hast den Kopf frei.</p>
 
-    <figure class="stage" data-slot="hero" data-kind="product" data-loop data-alt="Ein Roboter am Bildschirm arbeitet Aufgaben aus E-Mail, Discord und Formular ab und legt die Ergebnisse in Antworten, Datenbank und Kalender ab." aria-label="Beispiel: Ein Bot arbeitet eingehende Aufgaben ab">
-      <svg class="stage__wires" aria-hidden="true" focusable="false"></svg>
-      <span class="parcel" aria-hidden="true"><svg class="icon"><use href="#i-mail"/></svg><span></span></span>
-
-      <ul class="stage__col stage__col--in" aria-label="Eingänge">
-        <li class="node" data-in="mail" style="--i:0"><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg><span class="node__text"><span class="node__name">E-Mail</span><span class="node__note">Terminanfrage</span></span></li>
-        <li class="node" data-in="discord" style="--i:1"><svg class="icon" aria-hidden="true"><use href="#i-message-square"/></svg><span class="node__text"><span class="node__name">Discord</span><span class="node__note">Support-Ticket</span></span></li>
-        <li class="node" data-in="form" style="--i:2"><svg class="icon" aria-hidden="true"><use href="#i-file-text"/></svg><span class="node__text"><span class="node__name">Formular</span><span class="node__note">Projektanfrage</span></span></li>
-      </ul>
-
-      <div class="desk" style="--i:3">
+      <figure class="rig" aria-label="Beispiel: Beim Scrollen arbeitet der Bot sechs Aufgaben ab">
+        <div class="rig__inbox" aria-hidden="true">
+          <span class="task" style="--x:-40vw;--y:-38svh;--mx0:-30vw;--my0:-30svh;--r:-7deg;--s:1.05;--a:0.24"><span class="task__in"><svg class="icon"><use href="#i-message-square"/></svg>Support-Ticket</span></span>
+          <span class="task task--far" style="--x:-24vw;--y:-44svh;--mx0:9vw;--my0:-35svh;--r:5deg;--s:0.92;--a:0.32"><span class="task__in"><svg class="icon"><use href="#i-mail"/></svg>Terminanfrage</span></span>
+          <span class="task" style="--x:-8vw;--y:-40svh;--mx0:-24vw;--my0:-21svh;--r:-4deg;--s:1;--a:0.40"><span class="task__in"><svg class="icon"><use href="#i-file-text"/></svg>Projektanfrage</span></span>
+          <span class="task" style="--x:-14vw;--y:-25svh;--mx0:25vw;--my0:-24svh;--r:8deg;--s:1.1;--a:0.48"><span class="task__in"><svg class="icon"><use href="#i-user-plus"/></svg>Neues Mitglied</span></span>
+          <span class="task task--far" style="--x:-31vw;--y:-23svh;--mx0:-5vw;--my0:-41svh;--r:-10deg;--s:0.9;--a:0.56"><span class="task__in"><svg class="icon"><use href="#i-receipt"/></svg>Rechnung anfordern</span></span>
+          <span class="task" style="--x:-43vw;--y:-21svh;--mx0:17vw;--my0:-21svh;--r:6deg;--s:1;--a:0.64"><span class="task__in"><svg class="icon"><use href="#i-bell"/></svg>Rückfrage</span></span>
+        </div>
         <div class="robot" aria-hidden="true">
-          <p class="robot__say">erledigt</p>
+          <p class="robot__say">wartet</p>
           <span class="robot__antenna"></span>
           <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
           <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
@@ -98,62 +106,42 @@
           <span class="robot__keys"></span>
         </div>
         <div class="screen">
-          <p class="screen__task"><svg class="icon icon--lg" aria-hidden="true"><use href="#i-message-square"/></svg><span>Support-Ticket</span></p>
-          <ol class="screen__steps">
-            <li data-s="done"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>Anliegen erkannt</span></li>
-            <li data-s="done"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>Antwort geschrieben</span></li>
-            <li data-s="done"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>Ticket geschlossen</span></li>
+          <p class="screen__head"><span>Erledigt</span><output class="screen__count">0 von 6</output></p>
+          <ol class="done">
+            <li style="--a:0.24"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Ticket gelöst</li>
+            <li style="--a:0.32"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Termin eingetragen</li>
+            <li style="--a:0.40"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Kontakt angelegt</li>
+            <li style="--a:0.48"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Mitglied begrüßt</li>
+            <li style="--a:0.56"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Rechnung verschickt</li>
+            <li style="--a:0.64"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Rückfrage beantwortet</li>
           </ol>
-          <p class="screen__out">Dein Zugang ist wieder frei. Melde dich einfach neu an.</p>
         </div>
-      </div>
-
-      <ul class="stage__col stage__col--out" aria-label="Ziele">
-        <li class="node" data-out="reply" style="--i:4"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg><span class="node__text"><span class="node__name">Antworten</span><span class="node__note">Ticket gelöst</span></span></li>
-        <li class="node" data-out="data" style="--i:5"><svg class="icon" aria-hidden="true"><use href="#i-database"/></svg><span class="node__text"><span class="node__name">Datenbank</span><span class="node__note">Kontakt neu</span></span></li>
-        <li class="node" data-out="calendar" style="--i:6"><svg class="icon" aria-hidden="true"><use href="#i-calendar-check"/></svg><span class="node__text"><span class="node__name">Kalender</span><span class="node__note">Termin steht</span></span></li>
-      </ul>
-
-      <button class="btn btn--clear btn--small stage__toggle" type="button" data-loop-toggle><svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg><span>Pause</span></button>
-    </figure>
-
-    <div class="cols hero__text">
-      <h1><span class="line"><span style="--i:0">Routine erledigt</span></span> <span class="line"><span style="--i:1">ab jetzt dein Bot.</span></span></h1>
-      <div class="hero__side">
-        <p class="lead">Ich automatisiere Abläufe und baue KI&#8209;Bots und Websites für Startups und Communities.</p>
-        <div class="actions">
-          <a class="btn" href="#kontakt">Projekt anfragen</a>
-          <a class="btn btn--clear" href="#leistungen">Leistungen ansehen</a>
-        </div>
-      </div>
+      </figure>
     </div>
+  </section>
 
-  </div>
- </div>
-</section>
-
-<section class="section say" aria-label="Kurz gesagt">
-  <div class="container">
-    <p class="say__text" data-scrub>Was sich wiederholt, übernimmt ein Bot. Du machst, was nur du kannst.</p>
-  </div>
-</section>
-
-<section class="section" id="leistungen">
-  <div class="container">
-    <div class="cols head" data-reveal>
-      <h2>Das baue ich für dich.</h2>
-      <p class="lead">Fahr über eine Karte oder tippe sie an und sieh zu, wie es arbeitet.</p>
+  <!-- 2 · the statement -->
+  <section class="say" aria-label="Kurz gesagt">
+    <div class="container">
+      <p class="say__text" data-scrub>Was sich wiederholt, übernimmt ein Bot. Du machst, was nur du kannst.</p>
     </div>
+  </section>
 
-    <div class="cols bento">
-
-      <article class="tile tile--wide" data-play="2800">
-        <div class="tile__text">
-          <h3>Prozessautomation</h3>
-          <p>Wiederkehrende Abläufe laufen von allein, vom Eingang bis zur Ablage.</p>
+  <!-- 3 · the services, travelled sideways -->
+  <section id="leistungen" data-sc-act="pan" data-sc-span="4.4">
+    <div data-sc-stage>
+      <div class="svc__rail" data-sc-pan="0.04">
+        <div class="svc__lead">
+          <h2>Vom Discord-Bot bis zur Website.</h2>
+          <p class="lead">Vier Dinge, die ich dir baue. Scroll weiter und sieh jedem bei der Arbeit zu.</p>
         </div>
-        <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Prozessautomation abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
-        <figure class="demo flow" data-slot="demo-automation" data-kind="product" data-alt="Eine Bestellung läuft automatisch durch Prüfung, Rechnung und Versand.">
+        <article class="tile card" data-play="2800" data-sc-tilt="3">
+          <div class="tile__text">
+            <h3>Prozessautomation</h3>
+            <p>Wiederkehrende Abläufe laufen von allein, vom Eingang bis zur Ablage.</p>
+          </div>
+          <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Prozessautomation abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
+          <figure class="demo flow" data-slot="demo-automation" data-kind="product" data-alt="Eine Bestellung läuft automatisch durch Prüfung, Rechnung und Versand.">
           <span class="chip"><svg class="icon a-in" style="--d:200" aria-hidden="true"><use href="#i-check"/></svg>Bestellung</span>
           <span class="link"><i class="a-draw" style="--d:400"></i></span>
           <span class="chip"><svg class="icon a-in" style="--d:800" aria-hidden="true"><use href="#i-check"/></svg>Prüfung</span>
@@ -162,28 +150,26 @@
           <span class="link"><i class="a-draw" style="--d:1600"></i></span>
           <span class="chip"><svg class="icon a-in" style="--d:2000" aria-hidden="true"><use href="#i-check"/></svg>Versand</span>
         </figure>
-      </article>
-
-      <article class="tile tile--narrow" data-play="2400">
-        <div class="tile__text">
-          <h3>KI&#8209;Bots und Assistenten</h3>
-          <p>Bots, die Fragen beantworten und Aufgaben wirklich erledigen.</p>
-        </div>
-        <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf KI-Bots abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
-        <figure class="demo chat" data-slot="demo-bot" data-kind="product" data-alt="Ein Bot beantwortet im Chat die Frage nach einer Rolle.">
+        </article>
+        <article class="tile card" data-play="2400" data-sc-tilt="3">
+          <div class="tile__text">
+            <h3>KI&#8209;Bots und Assistenten</h3>
+            <p>Bots, die Fragen beantworten und Aufgaben wirklich erledigen.</p>
+          </div>
+          <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf KI-Bots abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
+          <figure class="demo chat" data-slot="demo-bot" data-kind="product" data-alt="Ein Bot beantwortet im Chat die Frage nach einer Rolle.">
           <p class="bubble bubble--q a-fade" style="--d:100">Wie bekomme ich die VIP-Rolle?</p>
           <p class="bubble bubble--a a-fade" style="--d:1600"><svg class="icon" aria-hidden="true"><use href="#i-bot"/></svg><span>Konto verknüpfen, dann vergebe ich sie sofort.</span></p>
           <span class="typing a-blip" style="--d:550" aria-hidden="true"><i></i><i></i><i></i></span>
         </figure>
-      </article>
-
-      <article class="tile tile--narrow" data-play="2200">
-        <div class="tile__text">
-          <h3>Websites</h3>
-          <p>Schnelle, klare Seiten, die zeigen, was du anbietest.</p>
-        </div>
-        <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Websites abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
-        <figure class="demo site" data-slot="demo-website" data-kind="product" data-alt="Eine kleine Website baut sich Stück für Stück auf.">
+        </article>
+        <article class="tile card" data-play="2200" data-sc-tilt="3">
+          <div class="tile__text">
+            <h3>Websites</h3>
+            <p>Schnelle, klare Seiten, die zeigen, was du anbietest.</p>
+          </div>
+          <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Websites abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
+          <figure class="demo site" data-slot="demo-website" data-kind="product" data-alt="Eine kleine Website baut sich Stück für Stück auf.">
           <div class="site__page">
             <p class="site__nav a-fade" style="--d:100"><span>Start</span><span>Angebot</span><span>Kontakt</span></p>
             <p class="site__h a-fade" style="--d:450">Dein Laden, online.</p>
@@ -191,15 +177,14 @@
             <span class="site__grid" aria-hidden="true"><i class="a-fade" style="--d:1100"></i><i class="a-fade" style="--d:1250"></i><i class="a-fade" style="--d:1400"></i><i class="a-fade" style="--d:1550"></i></span>
           </div>
         </figure>
-      </article>
-
-      <article class="tile tile--wide" data-play="2800">
-        <div class="tile__text">
-          <h3>Prozessoptimierung</h3>
-          <p>Ich finde die Schritte, die niemand mehr von Hand machen muss.</p>
-        </div>
-        <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Prozessoptimierung abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
-        <figure class="demo cut" data-slot="demo-optimierung" data-kind="product" data-alt="Von fünf Arbeitsschritten übernimmt die Automation drei.">
+        </article>
+        <article class="tile card" data-play="2800" data-sc-tilt="3">
+          <div class="tile__text">
+            <h3>Prozessoptimierung</h3>
+            <p>Ich finde die Schritte, die niemand mehr von Hand machen muss.</p>
+          </div>
+          <button class="btn btn--clear btn--icon tile__play" type="button" aria-label="Ablauf Prozessoptimierung abspielen"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg></button>
+          <figure class="demo cut" data-slot="demo-optimierung" data-kind="product" data-alt="Von fünf Arbeitsschritten übernimmt die Automation drei.">
           <span class="chip chip--cut a-dim" style="--d:300">Abtippen</span>
           <span class="chip chip--cut a-dim" style="--d:650">Kopieren</span>
           <span class="chip chip--cut a-dim" style="--d:1000">Nachfragen</span>
@@ -208,88 +193,23 @@
           <span class="cut__note cut__note--auto a-fade" style="--d:1500">übernimmt die Automation</span>
           <span class="cut__note cut__note--keep a-fade" style="--d:1900">bleibt bei dir</span>
         </figure>
-      </article>
-
+        </article>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="section" id="ablauf">
-  <div class="container">
-    <div class="cols head" data-reveal>
-      <h2>Vom Erstgespräch zum laufenden System.</h2>
-    </div>
-
-    <ol class="cols way__steps" data-play="6000">
-      <li class="way__step">
-        <div class="way__art" aria-hidden="true">
-          <p class="bubble bubble--a a-fade" style="--d:300"><span>Was kostet dich Zeit?</span></p>
-          <p class="bubble bubble--q a-fade" style="--d:800">Die Tickets.</p>
-        </div>
-        <div class="way__rule"><i class="a-draw" style="--d:0;--t:900ms"></i><span class="way__mark"><i class="a-in" style="--d:300"></i></span></div>
-        <h3>Kennenlernen</h3>
-        <p>Im kostenlosen Erstgespräch erzählst du, was dich aufhält.</p>
-      </li>
-      <li class="way__step">
-        <div class="way__art" aria-hidden="true">
-          <div class="mini">
-            <span class="box box--sketch a-fade" style="--d:1300">Eingang</span>
-            <span class="link link--sketch a-in" style="--d:1450"></span>
-            <span class="box box--sketch a-fade" style="--d:1550">Bot</span>
-            <span class="link link--sketch a-in" style="--d:1700"></span>
-            <span class="box box--sketch a-fade" style="--d:1800">Antwort</span>
-          </div>
-        </div>
-        <div class="way__rule"><i class="a-draw" style="--d:1000;--t:900ms"></i><span class="way__mark"><i class="a-in" style="--d:1300"></i></span></div>
-        <h3>Konzept</h3>
-        <p>Ich zeige dir, was sich automatisieren lässt und wie.</p>
-      </li>
-      <li class="way__step">
-        <div class="way__art" aria-hidden="true">
-          <div class="mini">
-            <span class="box box--solid a-fade" style="--d:2300">Eingang<svg class="icon a-in" style="--d:2700"><use href="#i-check"/></svg></span>
-            <span class="link a-in" style="--d:2450"></span>
-            <span class="box box--solid a-fade" style="--d:2550">Bot<svg class="icon a-in" style="--d:2900"><use href="#i-check"/></svg></span>
-            <span class="link a-in" style="--d:2700"></span>
-            <span class="box box--solid a-fade" style="--d:2800">Antwort<svg class="icon a-in" style="--d:3100"><use href="#i-check"/></svg></span>
-          </div>
-        </div>
-        <div class="way__rule"><i class="a-draw" style="--d:2000;--t:900ms"></i><span class="way__mark"><i class="a-in" style="--d:2300"></i></span></div>
-        <h3>Umsetzung</h3>
-        <p>Ich baue, du testest früh mit und sagst, was fehlt.</p>
-      </li>
-      <li class="way__step">
-        <div class="way__art" aria-hidden="true">
-          <p class="live a-fade" style="--d:3500"><span class="switch"><i class="a-in" style="--d:3900"></i><b class="a-slide" style="--d:3900"></b></span>läuft</p>
-          <div class="mini">
-            <span class="box box--solid a-fade" style="--d:3300">Eingang</span>
-            <span class="link"><i class="a-draw" style="--d:4100"></i></span>
-            <span class="box box--solid a-fade" style="--d:3400">Bot</span>
-            <span class="link"><i class="a-draw" style="--d:4500"></i></span>
-            <span class="box box--solid a-fade" style="--d:3500">Antwort</span>
-            <span class="runner a-run" style="--d:4100"></span>
-          </div>
-        </div>
-        <div class="way__rule"><i class="a-draw" style="--d:3000;--t:900ms"></i><span class="way__mark"><i class="a-in" style="--d:3300"></i></span></div>
-        <h3>Betrieb</h3>
-        <p>Dein System läuft, und ich passe an, was sich ändert.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<section class="section section--l band" id="fuer-wen">
-  <div class="container" data-switch>
-    <div class="cols head" data-reveal>
-      <h2>Für alle mit zu viel Routine.</h2>
-      <div class="seg" role="tablist" aria-label="Zielgruppe">
+  <!-- 4 · who it is for -->
+  <section class="who" id="fuer-wen">
+    <div class="container" data-switch>
+      <div class="cols head" data-sc-in>
+        <h2>Für alle mit zu viel Routine.</h2>
+        <div class="seg" role="tablist" aria-label="Zielgruppe">
         <button type="button" role="tab" id="tab-startups" aria-controls="panel-startups" aria-selected="true">Startups</button>
         <button type="button" role="tab" id="tab-gaming" aria-controls="panel-gaming" aria-selected="false" tabindex="-1">Gaming und Discord</button>
         <button type="button" role="tab" id="tab-alle" aria-controls="panel-alle" aria-selected="false" tabindex="-1">Alle anderen</button>
+        </div>
       </div>
-    </div>
-
-    <div class="cols who__panel" role="tabpanel" id="panel-startups" aria-labelledby="tab-startups">
+      <div class="cols who__panel" role="tabpanel" id="panel-startups" aria-labelledby="tab-startups">
       <h3 class="who__say">Wenig Leute, viel zu tun.</h3>
       <ul class="lanes clear">
         <li><svg class="icon icon--lg" aria-hidden="true"><use href="#i-contact"/></svg>Anfragen landen direkt im CRM<svg class="icon icon--lg icon--done" aria-hidden="true"><use href="#i-check"/></svg></li>
@@ -315,70 +235,119 @@
         <li><svg class="icon icon--lg" aria-hidden="true"><use href="#i-clock"/></svg>Berichte kommen pünktlich jeden Montag<svg class="icon icon--lg icon--done" aria-hidden="true"><use href="#i-check"/></svg></li>
       </ul>
     </div>
-  </div>
-</section>
-
-<section class="section" id="ueber-mich">
-  <div class="container cols about">
-    <div class="about__text" data-reveal>
-      <h2>IT und Security, seit vielen Jahren.</h2>
-      <p class="lead">Ich bin Lukas Wiesemöller. Ich baue Automationen so, dass sie sicher laufen und sich später leicht anpassen lassen.</p>
-      <dl class="facts">
-        <div><dt>Sitz</dt><dd>Borchen</dd></div>
-        <div><dt>Schwerpunkt</dt><dd>Automation, KI&#8209;Bots, Websites</dd></div>
-        <div><dt>Zusammenarbeit</dt><dd>Direkt mit mir, per Du</dd></div>
-      </dl>
     </div>
-    <figure class="portrait" data-reveal style="--i:2" data-slot="portrait" data-alt="Porträt von Lukas Wiesemöller">
-      <img src="images/lukas.jpg" alt="Porträt von Lukas Wiesemöller" width="400" height="400" loading="lazy" style="object-position: 50% 30%">
-      <span class="portrait__initials" aria-hidden="true">LW</span>
-    </figure>
-  </div>
-</section>
+  </section>
 
-<section class="section section--l contact" id="kontakt">
-  <div class="contact__panel dark">
-    <div class="light" aria-hidden="true"><canvas data-light="contact"></canvas></div>
-    <div class="container cols contact__inner">
-      <div class="contact__say" data-reveal>
-        <h2>Erzähl mir von deinem Projekt.</h2>
-        <p class="lead">Das Erstgespräch ist kostenlos und unverbindlich.</p>
-      </div>
-      <div class="contact__do" data-reveal style="--i:2">
-        <a class="contact__mail" href="mailto:kontakt@lnw-automations-solutions.de">kontakt@lnw-automations-solutions.de</a>
-        <div class="actions">
-          <a class="btn" href="mailto:kontakt@lnw-automations-solutions.de?subject=Projektanfrage">E-Mail schreiben</a>
-          <button class="btn btn--clear" type="button" data-copy="kontakt@lnw-automations-solutions.de"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Adresse kopieren</span></button>
+  <!-- 5 · the path: four steps, drawn by the scroll -->
+  <section id="ablauf" data-sc-act="pin" data-sc-span="2.8">
+    <div data-sc-stage>
+      <div class="container path">
+        <h2>Vier Schritte, bis dein Bot läuft.</h2>
+        <div class="path__wrap">
+          <span class="path__bar" aria-hidden="true"><i></i></span>
+          <ol class="path__steps">
+            <li class="path__step" style="--i:0">
+              <div class="path__art" aria-hidden="true">
+                <p class="bubble bubble--a"><span>Was kostet dich Zeit?</span></p>
+                <p class="bubble bubble--q">Die Tickets.</p>
+              </div>
+              <span class="path__mark"></span>
+              <h3>Kennenlernen</h3>
+              <p>Im kostenlosen Erstgespräch erzählst du, was dich aufhält.</p>
+            </li>
+            <li class="path__step" style="--i:1">
+              <div class="path__art" aria-hidden="true">
+                <div class="mini"><span class="box box--sketch">Eingang</span><span class="link link--sketch"></span><span class="box box--sketch">Bot</span><span class="link link--sketch"></span><span class="box box--sketch">Antwort</span></div>
+              </div>
+              <span class="path__mark"></span>
+              <h3>Konzept</h3>
+              <p>Ich zeige dir, was sich automatisieren lässt und wie.</p>
+            </li>
+            <li class="path__step" style="--i:2">
+              <div class="path__art" aria-hidden="true">
+                <ul class="checks"><li><svg class="icon"><use href="#i-check"/></svg>Bot gebaut</li><li><svg class="icon"><use href="#i-check"/></svg>Mit dir getestet</li><li><svg class="icon"><use href="#i-check"/></svg>Nachgeschärft</li></ul>
+              </div>
+              <span class="path__mark"></span>
+              <h3>Umsetzung</h3>
+              <p>Ich baue, du testest früh mit und sagst, was fehlt.</p>
+            </li>
+            <li class="path__step" style="--i:3">
+              <div class="path__art" aria-hidden="true">
+                <p class="live"><span class="switch"><b></b></span>läuft</p>
+              </div>
+              <span class="path__mark"></span>
+              <h3>Betrieb</h3>
+              <p>Dein System läuft, und ich passe an, was sich ändert.</p>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- 6 · about -->
+  <section class="about-act" id="ueber-mich" data-sc-act="flow">
+    <div class="container cols about">
+      <div class="about__text" data-sc-in data-sc-stagger="70">
+        <h2>Ich bin Lukas, aus Borchen.</h2>
+        <p class="lead">Ich komme aus IT und Security und arbeite dort seit vielen Jahren. Deshalb baue ich Automationen so, dass sie sicher laufen und sich später leicht anpassen lassen.</p>
+        <dl class="facts">
+          <div><dt>Schwerpunkt</dt><dd>Automation, KI&#8209;Bots, Websites</dd></div>
+          <div><dt>Zusammenarbeit</dt><dd>Direkt mit mir, per Du</dd></div>
+        </dl>
+      </div>
+      <figure class="portrait" data-sc-reveal="up" data-sc-reveal-at="0.12 0.5" data-slot="portrait" data-alt="Porträt von Lukas Wiesemöller">
+        <img src="images/lukas.jpg" alt="Porträt von Lukas Wiesemöller" width="400" height="400" loading="lazy" style="object-position: 50% 30%">
+      </figure>
+    </div>
+  </section>
+
+  <!-- 7 · the close: the last screen, and it holds -->
+  <section id="kontakt" data-sc-act="pin" data-sc-span="1.2">
+    <div data-sc-stage>
+      <div class="container close">
+        <div class="cols close__main">
+          <div class="close__say">
+            <h2 data-sc-cue="0.05" data-sc-kinetic="lines">Erzähl mir, was dich aufhält.</h2>
+            <p class="lead" data-sc-cue="0.12">Das Erstgespräch ist kostenlos und unverbindlich.</p>
+            <a class="close__mail" data-sc-cue="0.16" href="mailto:kontakt@lnw-automations-solutions.de">kontakt@lnw-automations-solutions.de</a>
+            <div class="actions" data-sc-cue="0.2">
+              <a class="btn" href="mailto:kontakt@lnw-automations-solutions.de?subject=Projektanfrage" data-sc-magnet="0.25">E-Mail schreiben</a>
+              <button class="btn btn--clear" type="button" data-copy="kontakt@lnw-automations-solutions.de"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Adresse kopieren</span></button>
+            </div>
+          </div>
+          <div class="close__bot" data-sc-cue="0.1">
+            <div class="robot" aria-hidden="true">
+          <p class="robot__say">Was darf ich übernehmen?</p>
+          <span class="robot__antenna"></span>
+          <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
+          <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
+          <span class="robot__neck"></span>
+          <span class="robot__body"></span>
+          <span class="robot__arm robot__arm--l"></span><span class="robot__arm robot__arm--r"></span>
+          <span class="robot__keys"></span>
+        </div>
+          </div>
+        </div>
+        <footer class="foot">
+          <div class="cols foot__grid">
+            <address class="foot__addr">LNW Automation &amp; AI Solutions<br>Lukas Wiesemöller<br>Vitusstraße 10, 33178 Borchen</address>
+            <ul class="foot__links">
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="datenschutz.html">Datenschutz</a></li>
+            </ul>
+            <p class="foot__legal">© 2026 LNW</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </section>
 
 </main>
 
-<footer class="foot">
-  <div class="container">
-    <div class="cols foot__grid">
-      <p class="foot__bye">Bis bald,<br>Lukas</p>
-      <address class="foot__addr">
-        LNW Automation &amp; AI Solutions<br>
-        Lukas Wiesemöller<br>
-        Vitusstraße 10<br>
-        33178 Borchen
-      </address>
-      <ul class="foot__links">
-        <li><a href="mailto:kontakt@lnw-automations-solutions.de">E-Mail schreiben</a></li>
-        <li><a href="impressum.html">Impressum</a></li>
-        <li><a href="datenschutz.html">Datenschutz</a></li>
-      </ul>
-    </div>
-    <p class="foot__legal">© 2026 LNW Automation &amp; AI Solutions</p>
-  </div>
-</footer>
-
 <script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
 document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
-<script src="main.js" defer></script>
+<script src="scrollcraft.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

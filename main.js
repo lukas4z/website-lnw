@@ -24,333 +24,114 @@
   const spied = navLinks.map((a) => $(a.getAttribute('href'))).filter(Boolean);
   if (spied.length && 'IntersectionObserver' in window) {
     const visible = new Set();
-    const mark = () => {
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
       const current = spied.filter((s) => visible.has(s)).pop();
       navLinks.forEach((a) => {
         if (current && a.getAttribute('href') === '#' + current.id) a.setAttribute('aria-current', 'true');
         else a.removeAttribute('aria-current');
       });
-    };
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
-      mark();
     }, { rootMargin: '-45% 0px -50% 0px' });
     spied.forEach((s) => spy.observe(s));
   }
 
-  /* ---------- the light: sun through a glazed window, with a prism's fan ---------- */
-  const drawLight = (canvas) => {
-    const box = canvas.parentElement.getBoundingClientRect();
-    if (!box.width || !box.height) return;
-    const W = 440;
-    const H = Math.max(140, Math.round((W * box.height) / box.width));
-    canvas.width = W;
-    canvas.height = H;
-    const g = canvas.getContext('2d');
-    const c = {
-      shade: token('--lit-shade', canvas), light: token('--lit', canvas), bloom: token('--bloom', canvas),
-      s1: token('--spec-1', canvas), s2: token('--spec-2', canvas), s3: token('--spec-3', canvas), s4: token('--spec-4', canvas),
+  /* ---------- the aura: prism fans on a fixed canvas; the scroll turns it ---------- */
+  const aura = $('.aura canvas');
+  if (aura) {
+    const paint = () => {
+      const W = 520, H = Math.round((520 * innerHeight) / innerWidth);
+      aura.width = W; aura.height = H;
+      const g = aura.getContext('2d');
+      const spec = ['--spec-1', '--spec-2', '--spec-3', '--spec-4'].map((n) => token(n));
+      const white = token('--color-ink');
+      const u = Math.min(W, H);
+      const fan = (fx, fy, tx, ty, w0, w1, alpha) => {
+        const dx = tx - fx, dy = ty - fy, len = Math.hypot(dx, dy);
+        const nx = -dy / len, ny = dx / len;
+        const band = (o0, o1, a0, a1, colour, al) => {
+          g.beginPath();
+          g.moveTo(fx + nx * o0, fy + ny * o0);
+          g.lineTo(fx + nx * (o0 + a0), fy + ny * (o0 + a0));
+          g.lineTo(tx + nx * (o1 + a1), ty + ny * (o1 + a1));
+          g.lineTo(tx + nx * o1, ty + ny * o1);
+          g.closePath();
+          g.fillStyle = colour; g.globalAlpha = al; g.fill();
+        };
+        spec.forEach((colour, i) => band(i * w0, i * w1, w0, w1, colour, alpha));
+        band(-w0 * 0.6, -w1 * 0.4, w0 * 0.6, w1 * 0.4, white, alpha * 0.9);
+      };
+      g.clearRect(0, 0, W, H);
+      g.globalCompositeOperation = 'lighter';
+      fan(W * 1.02, H * 0.02, W * 0.36, H * 0.98, u * 0.012, u * 0.07, 0.4);
+      fan(W * 0.62, -H * 0.05, W * 0.08, H * 0.62, u * 0.006, u * 0.035, 0.22);
+      fan(W * 0.98, H * 0.55, W * 0.6, H * 1.1, u * 0.008, u * 0.05, 0.24);
+      g.globalAlpha = 1;
+      g.globalCompositeOperation = 'source-over';
     };
-    const contact = canvas.dataset.light === 'contact';
-    const narrow = !contact && matchMedia('(max-width: 70rem)').matches;
-    const u = contact ? H * 0.9 : Math.min(H, W * 0.5);
-    const skew = contact ? 0.42 : -0.46;
-    const cols = 3, rows = 2;
-    const pw = u * 0.5, ph = u * 0.44, bar = u * 0.034;
-    const total = cols * pw + (cols - 1) * bar;
-    const ox = contact ? W * 0.5 - total * 0.2 : (W - total) / 2 + u * 0.36;
-    const oy = contact ? H * 0.06 : narrow ? H * 0.4 : -u * 0.04;
-    const at = (x, y) => [ox + x + skew * y, oy + y];
-    const quad = (x, y, w, h) => {
-      g.beginPath();
-      [at(x, y), at(x + w, y), at(x + w, y + h), at(x, y + h)].forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py)));
-      g.closePath();
-    };
-    const edge = (x, y0, y1, colour, alpha, width) => {
-      g.beginPath();
-      g.moveTo(...at(x, y0));
-      g.lineTo(...at(x, y1));
-      g.strokeStyle = colour; g.globalAlpha = alpha; g.lineWidth = width; g.stroke();
-    };
-
-    g.clearRect(0, 0, W, H);
-    g.globalAlpha = 0.4;
-    g.fillStyle = c.shade;
-    g.fillRect(0, 0, W, H);
-
-    // one soft bloom behind the desk, only where the ground is dark
-    const bx = contact ? W * 0.3 : W * 0.5, by = contact ? H * 0.55 : narrow ? H * 0.6 : u * 0.52;
-    const bloom = g.createRadialGradient(bx, by, 0, bx, by, u * 0.8);
-    bloom.addColorStop(0, c.bloom);
-    bloom.addColorStop(1, c.bloom.replace(/\/\s*[\d.]+\s*\)/, '/ 0)'));
-    g.globalAlpha = 1;
-    g.fillStyle = bloom;
-    g.fillRect(0, 0, W, H);
-
-    for (let r = 0; r < rows; r++) {
-      for (let k = 0; k < cols; k++) {
-        const x = k * (pw + bar), y = r * (ph + bar);
-        g.globalCompositeOperation = 'destination-out';
-        g.globalAlpha = 1;
-        quad(x, y, pw, ph); g.fill();
-        g.globalCompositeOperation = 'source-over';
-        g.globalAlpha = 0.85;
-        g.fillStyle = c.light;
-        quad(x, y, pw, ph); g.fill();
-        // the pane's edges split warm and cool
-        edge(x + u * 0.005, y, y + ph, c.s1, 0.26, u * 0.009);
-        edge(x + u * 0.015, y, y + ph, c.s2, 0.22, u * 0.009);
-        edge(x + pw - u * 0.015, y, y + ph, c.s3, 0.22, u * 0.009);
-        edge(x + pw - u * 0.005, y, y + ph, c.s4, 0.24, u * 0.009);
-      }
-    }
-
-    // the prism's fan, crossing the patch at a low angle
-    const fx = contact ? W * 0.04 : W * 1.0, fy = contact ? H * 0.2 : oy;
-    const tx = contact ? W * 0.62 : W * 0.5, ty = contact ? H * 1.05 : oy + u * 1.02;
-    const dx = tx - fx, dy = ty - fy, len = Math.hypot(dx, dy);
-    const nx = -dy / len, ny = dx / len;
-    const band = (offset0, offset1, w0, w1, colour, alpha) => {
-      g.beginPath();
-      g.moveTo(fx + nx * offset0, fy + ny * offset0);
-      g.lineTo(fx + nx * (offset0 + w0), fy + ny * (offset0 + w0));
-      g.lineTo(tx + nx * (offset1 + w1), ty + ny * (offset1 + w1));
-      g.lineTo(tx + nx * offset1, ty + ny * offset1);
-      g.closePath();
-      g.fillStyle = colour; g.globalAlpha = alpha; g.fill();
-    };
-    const w0 = u * 0.006, w1 = u * 0.03;
-    [c.s1, c.s2, c.s3, c.s4].forEach((colour, i) => band(i * w0, i * w1, w0, w1, colour, 0.36));
-    band(-w0, -w1 * 0.6, w0, w1 * 0.6, c.light, 0.95);
-
-    // the light fades to paper where the type sits
-    const fade = g.createLinearGradient(0, 0, 0, H);
-    const keys = contact ? [[0.03, 0], [0.42, 1], [0.58, 1], [0.97, 0]] : narrow ? [[0.26, 0], [0.52, 1], [0.8, 1], [0.99, 0]] : [[0, 1], [0.42, 1], [0.99, 0]];
-    const smooth = (p) => p * p * (3 - 2 * p);
-    const alphaAt = (y) => {
-      if (y <= keys[0][0]) return keys[0][1];
-      for (let i = 1; i < keys.length; i++) {
-        if (y <= keys[i][0]) return keys[i - 1][1] + (keys[i][1] - keys[i - 1][1]) * smooth((y - keys[i - 1][0]) / (keys[i][0] - keys[i - 1][0]));
-      }
-      return keys[keys.length - 1][1];
-    };
-    for (let i = 0; i <= 24; i++) fade.addColorStop(i / 24, c.light.replace(')', ' / ' + alphaAt(i / 24).toFixed(3) + ')'));
-    g.globalCompositeOperation = 'destination-in';
-    g.globalAlpha = 1;
-    g.fillStyle = fade;
-    g.fillRect(0, 0, W, H);
-    g.globalCompositeOperation = 'source-over';
-  };
-
-  const lights = $$('.light canvas');
-  const paintLights = () => lights.forEach(drawLight);
-  if (lights.length) {
-    paintLights();
+    paint();
     let raf = 0;
-    addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(paintLights); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintLights);
+    addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(paint); });
   }
 
-  /* ---------- the stage: a robot working through tasks ---------- */
-  const stage = $('.stage');
-  if (stage) {
-    const svg = $('.stage__wires', stage);
-    const robot = $('.robot', stage);
-    const head = $('.robot__head', stage);
-    const say = $('.robot__say', stage);
-    const screen = $('.screen', stage);
-    const taskIcon = $('.screen__task use', stage);
-    const taskName = $('.screen__task span', stage);
-    const steps = $$('.screen__steps li', stage);
-    const out = $('.screen__out', stage);
-    const ins = Object.fromEntries($$('[data-in]', stage).map((n) => [n.dataset.in, n]));
-    const outs = Object.fromEntries($$('[data-out]', stage).map((n) => [n.dataset.out, n]));
-    const toggleBtn = $('[data-loop-toggle]', stage);
-    const heroLight = $('.hero .light');
-    const NS = 'http://www.w3.org/2000/svg';
+  let pageTick = false;
+  const pageProgress = () => {
+    pageTick = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    document.documentElement.style.setProperty('--page-p', max > 0 ? (scrollY / max).toFixed(4) : '0');
+  };
+  if (!reduced.matches) {
+    addEventListener('scroll', () => { if (!pageTick) { pageTick = true; requestAnimationFrame(pageProgress); } }, { passive: true });
+    pageProgress();
+  }
 
-    const tasks = [
-      { from: 'discord', icon: 'message-square', name: 'Support-Ticket', steps: ['Anliegen erkannt', 'Antwort geschrieben', 'Ticket geschlossen'], out: 'Dein Zugang ist wieder frei. Melde dich einfach neu an.', to: 'reply', result: 'Ticket gelöst' },
-      { from: 'form', icon: 'file-text', name: 'Projektanfrage', steps: ['Angaben geprüft', 'Kontakt angelegt', 'Rückruf geplant'], out: 'Neuer Kontakt: Beispiel GmbH, Thema Onlineshop.', to: 'data', result: 'Kontakt neu' },
-      { from: 'mail', icon: 'mail', name: 'Terminanfrage', steps: ['Kalender geprüft', 'Termin eingetragen', 'Bestätigung gesendet'], out: 'Passt: Dienstag um 10 Uhr ist für dich reserviert.', to: 'calendar', result: 'Termin steht' },
-      { from: 'discord', icon: 'message-square', name: 'Neues Mitglied', steps: ['Regeln bestätigt', 'Rolle vergeben', 'Begrüßung gesendet'], out: 'Willkommen! Du hast jetzt Zugriff auf alle Kanäle.', to: 'reply', result: 'Begrüßt' },
-      { from: 'mail', icon: 'mail', name: 'Rechnung anfordern', steps: ['Kunde erkannt', 'Rechnung erstellt', 'Beleg abgelegt'], out: 'Rechnung für Beispiel GmbH erstellt und abgelegt.', to: 'data', result: 'Beleg abgelegt' },
-    ];
-
-    // wires, drawn from where the pieces really are
-    const wires = { in: {}, out: {} };
-    const parcel = $('.parcel', stage);
-    const parcelIcon = $('use', parcel);
-    const parcelText = $('span', parcel);
-    const makeWire = () => {
-      const p = document.createElementNS(NS, 'path');
-      p.setAttribute('class', 'wire');
-      svg.appendChild(p);
-      return p;
-    };
-    Object.keys(ins).forEach((k) => (wires.in[k] = makeWire()));
-    Object.keys(outs).forEach((k) => (wires.out[k] = makeWire()));
-
-    const layout = () => {
-      const s = stage.getBoundingClientRect();
-      if (!s.width) return;
-      svg.setAttribute('viewBox', `0 0 ${s.width} ${s.height}`);
-      const rel = (el) => {
-        const r = el.getBoundingClientRect();
-        return { l: r.left - s.left, r: r.right - s.left, t: r.top - s.top, b: r.bottom - s.top, cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2 };
-      };
-      const h = rel(head), rb = rel(robot), sc = rel(screen);
-      const curveX = (a, b) => { const m = (b[0] - a[0]) * 0.5; return `M${a[0]} ${a[1]}C${a[0] + m} ${a[1]} ${b[0] - m} ${b[1]} ${b[0]} ${b[1]}`; };
-      const curveY = (a, b) => { const m = (b[1] - a[1]) * 0.5; return `M${a[0]} ${a[1]}C${a[0]} ${a[1] + m} ${b[0]} ${b[1] - m} ${b[0]} ${b[1]}`; };
-      Object.entries(ins).forEach(([k, n], i) => {
-        const r = rel(n);
-        const side = r.b > rb.t;
-        wires.in[k].setAttribute('d', side ? curveX([r.r, r.cy], [h.l - 6, h.cy + (i - 1) * 16]) : curveY([r.cx, r.b], [rb.cx + (i - 1) * 8, rb.t - 4]));
-      });
-      Object.entries(outs).forEach(([k, n], i) => {
-        const r = rel(n);
-        const side = r.t < sc.b;
-        wires.out[k].setAttribute('d', side ? curveX([sc.r, sc.cy + (i - 1) * 44], [r.l, r.cy]) : curveY([sc.cx + (i - 1) * 56, sc.b], [r.cx, r.t]));
-      });
-    };
-
-    // one clock for the whole loop, so a pause holds everything at once
-    const clock = { now: 0, last: 0, running: false, jobs: [] };
-    const frame = (t) => {
-      const dt = Math.min(50, t - (clock.last || t));
-      clock.last = t;
-      if (clock.running) {
-        clock.now += dt;
-        clock.jobs = clock.jobs.filter((job) => {
-          const p = Math.min(1, (clock.now - job.start) / job.dur);
-          if (job.step) job.step(p);
-          if (p < 1) return true;
-          job.done();
-          return false;
-        });
-      }
-      requestAnimationFrame(frame);
-    };
-    const tween = (dur, step) => new Promise((done) => clock.jobs.push({ start: clock.now, dur: Math.max(1, dur), step, done }));
-    const wait = (ms) => tween(ms);
-    const ease = (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
-
-    const flash = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); return wait(ms).then(() => el.classList.remove(cls)); };
+  /* ---------- the desk: the act's own progress decides what the robot does ---------- */
+  const desk = $('#top');
+  const rig = desk && $('.rig', desk);
+  if (rig) {
+    const robot = $('.robot', rig);
+    const say = $('.robot__say', rig);
+    const count = $('.screen__count', rig);
+    const starts = $$('.task', rig).map((t) => parseFloat(t.style.getPropertyValue('--a')));
+    const total = starts.length;
+    let last = -1, lastDone = 0, idle = 0;
     const look = (x, y) => { robot.style.setProperty('--look-x', x + 'px'); robot.style.setProperty('--look-y', y + 'px'); };
-    const travel = async (wire, ms, icon, text) => {
-      const len = wire.getTotalLength();
-      parcelIcon.setAttribute('href', '#i-' + icon);
-      parcelText.textContent = text;
-      const w = parcel.offsetWidth, h = parcel.offsetHeight;
-      const place = (p) => {
-        const pt = wire.getPointAtLength(len * ease(p));
-        parcel.style.transform = `translate(${pt.x - w / 2}px, ${pt.y - h / 2}px)`;
-      };
-      place(0);
-      wire.classList.add('is-live');
-      parcel.classList.add('is-on');
-      await tween(ms, place);
-      parcel.classList.remove('is-on');
-      wire.classList.remove('is-live');
-    };
-    const type = (el, text, ms) => tween(ms, (p) => { el.textContent = text.slice(0, Math.round(text.length * p)); });
-    const note = (node, text) => { $('.node__note', node).textContent = text; };
-
-    const play = async (task) => {
-      const source = ins[task.from], target = outs[task.to];
-      // a task comes in
-      say.textContent = 'neue Aufgabe';
-      look(-6, 0);
-      note(source, task.name);
-      source.classList.add('is-active');
-      await travel(wires.in[task.from], 1100, task.icon, task.name);
-      source.classList.remove('is-active');
-      flash(robot, 'is-pulse', 420);
-
-      // the robot works it on screen
-      taskIcon.setAttribute('href', '#i-' + task.icon);
-      taskName.textContent = task.name;
-      steps.forEach((li, i) => { li.dataset.s = 'todo'; li.lastElementChild.textContent = task.steps[i]; });
-      out.textContent = '';
-      say.textContent = 'arbeitet';
-      robot.classList.add('is-typing');
-      for (let i = 0; i < steps.length; i++) {
-        look(9, (i - 1) * 5);
-        steps[i].dataset.s = 'run';
-        if (i === 1) await type(out, task.out, 1100); else await wait(800);
-        steps[i].dataset.s = 'done';
-        flash(robot, 'is-blink', 130);
-        await wait(160);
+    const flash = (cls, ms) => { robot.classList.remove(cls); void robot.offsetWidth; robot.classList.add(cls); setTimeout(() => robot.classList.remove(cls), ms); };
+    const update = (p) => {
+      const done = starts.filter((a) => p >= a + 0.1).length;
+      const working = p > starts[0] - 0.03 && done < total;
+      count.textContent = `${done} von ${total}`;
+      say.textContent = done === total ? 'alles erledigt' : working ? `${done} von ${total} erledigt` : 'wartet';
+      robot.classList.toggle('is-happy', done === total);
+      if (working) {
+        look(-9, -4);
+        robot.classList.add('is-typing');
+        clearTimeout(idle);
+        idle = setTimeout(() => robot.classList.remove('is-typing'), 180);
+      } else {
+        look(0, 0);
+        robot.classList.remove('is-typing');
       }
-      robot.classList.remove('is-typing');
-
-      // done: the result goes out
-      say.textContent = 'erledigt';
-      robot.classList.add('is-happy');
-      target.classList.add('is-active');
-      await travel(wires.out[task.to], 1100, 'check', task.result);
-      note(target, task.result);
-      await wait(900);
-      target.classList.remove('is-active');
-      robot.classList.remove('is-happy');
-      look(0, 0);
-      say.textContent = 'wartet';
-      await wait(700);
+      if (done > lastDone) flash('is-pulse', 420);
+      lastDone = done;
     };
-
-    const state = { seen: false, held: false, shown: !document.hidden };
-    const sync = () => {
-      clock.running = state.seen && state.shown && !state.held && !reduced.matches;
-      stage.classList.toggle('is-running', clock.running);
-      if (heroLight) heroLight.classList.toggle('is-still', !clock.running);
-      $('use', toggleBtn).setAttribute('href', state.held ? '#i-play' : '#i-pause');
-      $('span', toggleBtn).textContent = state.held ? 'Weiter' : 'Pause';
-    };
-    toggleBtn.addEventListener('click', () => { state.held = !state.held; sync(); });
-    document.addEventListener('visibilitychange', () => { state.shown = !document.hidden; sync(); });
-    new IntersectionObserver(([e]) => { state.seen = e.isIntersecting; sync(); }, { threshold: 0.2 }).observe(stage);
-    reduced.addEventListener('change', sync);
-
-    const start = async () => {
-      layout();
-      stage.classList.add('is-built');
-      if ('ResizeObserver' in window) new ResizeObserver(layout).observe(stage);
-      addEventListener('resize', layout);
-      if (reduced.matches) return;
+    const frame = () => {
+      const p = parseFloat(desk.style.getPropertyValue('--sc-p')) || 0;
+      if (p !== last) { last = p; update(p); }
       requestAnimationFrame(frame);
-      look(0, 0);
-      say.textContent = 'wartet';
-      await wait(1100);
-      for (let i = 0; ; i++) await play(tasks[i % tasks.length]);
     };
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+    requestAnimationFrame(frame);
   }
 
-  /* ---------- light and dark ---------- */
-  const modeBtn = $('.nav__mode');
-  if (modeBtn) {
-    modeBtn.addEventListener('click', () => {
-      const dark = document.documentElement.dataset.mode !== 'dark';
-      if (dark) document.documentElement.dataset.mode = 'dark'; else delete document.documentElement.dataset.mode;
-      try { localStorage.setItem('lnw-mode', dark ? 'dark' : 'light'); } catch (err) { /* private mode: the choice lasts for this visit */ }
-      paintLights();
-    });
+  // the robot blinks now and then, wherever it sits
+  if (!reduced.matches) {
+    setInterval(() => $$('.robot').forEach((r) => {
+      if (r.classList.contains('is-happy')) return;
+      r.classList.add('is-blink');
+      setTimeout(() => r.classList.remove('is-blink'), 140);
+    }), 4200);
   }
 
-  /* ---------- reveals and the statement that fills in on scroll ---------- */
-  const reveals = $$('[data-reveal]');
-  if (reveals.length) {
-    if (reduced.matches || !('IntersectionObserver' in window)) reveals.forEach((el) => el.classList.add('is-in'));
-    else {
-      const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      }), { rootMargin: '0px 0px -12% 0px' });
-      reveals.forEach((el) => io.observe(el));
-    }
-  }
-
+  /* ---------- the statement that fills in on scroll ---------- */
   const scrub = $('[data-scrub]');
   if (scrub && !reduced.matches) {
     const words = scrub.textContent.trim().split(/\s+/);
@@ -358,25 +139,18 @@
     scrub.innerHTML = words.map((w) => `<span aria-hidden="true">${w}</span>`).join(' ');
     const spans = $$('span', scrub);
     let ticking = false;
-    const paint = () => {
+    const paintWords = () => {
       ticking = false;
       const r = scrub.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, (innerHeight * 0.88 - r.top) / (innerHeight * 0.5)));
-      spans.forEach((sp, i) => sp.style.setProperty('--o', (0.18 + 0.82 * Math.min(1, Math.max(0, p * (spans.length + 2) - i))).toFixed(3)));
+      const p = Math.min(1, Math.max(0, (innerHeight * 0.9 - r.top) / (innerHeight * 0.55)));
+      spans.forEach((sp, i) => sp.style.setProperty('--o', (0.16 + 0.84 * Math.min(1, Math.max(0, p * (spans.length + 2) - i))).toFixed(3)));
     };
-    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(paint); } }, { passive: true });
-    addEventListener('resize', paint);
-    paint();
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(paintWords); } }, { passive: true });
+    addEventListener('resize', paintWords);
+    paintWords();
   }
 
-  $$('.tile').forEach((tile) => tile.addEventListener('pointermove', (e) => {
-    const r = tile.getBoundingClientRect();
-    tile.style.setProperty('--mx', e.clientX - r.left + 'px');
-    tile.style.setProperty('--my', e.clientY - r.top + 'px');
-  }));
-
-  /* ---------- playable pieces: once on view, again on hover or tap ---------- */
-  const playables = $$('[data-play]');
+  /* ---------- the service cards: play once in view, again on hover or tap ---------- */
   const run = (el) => {
     if (el.dataset.busy) return;
     el.dataset.busy = '1';
@@ -385,6 +159,7 @@
     el.classList.add('is-playing');
     setTimeout(() => delete el.dataset.busy, Number(el.dataset.play) || 2500);
   };
+  const playables = $$('[data-play]');
   if (playables.length) {
     if (reduced.matches || !('IntersectionObserver' in window)) {
       playables.forEach((el) => el.classList.add('is-playing'));
@@ -393,11 +168,16 @@
         if (!e.isIntersecting) return;
         run(e.target);
         seen.unobserve(e.target);
-      }), { threshold: 0.4 });
+      }), { threshold: 0.75 });
       playables.forEach((el) => seen.observe(el));
     }
     $$('.tile[data-play]').forEach((tile) => {
       tile.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && tile.classList.contains('is-playing')) run(tile); });
+      tile.addEventListener('pointermove', (e) => {
+        const r = tile.getBoundingClientRect();
+        tile.style.setProperty('--mx', e.clientX - r.left + 'px');
+        tile.style.setProperty('--my', e.clientY - r.top + 'px');
+      });
       const btn = $('.tile__play', tile);
       if (btn) btn.addEventListener('click', () => run(tile));
     });
@@ -441,4 +221,7 @@
       setTimeout(() => { label.textContent = text; }, 2200);
     });
   });
+
+  /* ---------- the scroll engine ---------- */
+  if (window.ScrollCraft) window.ScrollCraft.mount(document.body);
 })();
