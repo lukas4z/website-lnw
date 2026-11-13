@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lnw-automations-solutions.de/sitemap.xml

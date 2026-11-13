@@ -14,10 +14,18 @@
       links.classList.toggle('is-open', open);
       toggle.setAttribute('aria-expanded', String(open));
     };
-    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+    toggle.addEventListener('click', () => {
+      setOpen(!isOpen());
+      if (isOpen()) { const first = links.querySelector('a'); if (first) first.focus(); }
+    });
     links.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    // Escape closes the menu and hands the focus back to its button
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) { setOpen(false); toggle.focus(); } });
     document.addEventListener('click', (e) => { if (!e.target.closest('.nav__bar')) setOpen(false); });
+    // tabbing out of the open menu closes it, so the focus never sits behind it
+    const bar = toggle.closest('.nav__bar');
+    bar.addEventListener('focusout', (e) => { if (isOpen() && e.relatedTarget && !bar.contains(e.relatedTarget)) setOpen(false); });
   }
 
   const navLinks = $$('.nav__links a[href^="#"]');
@@ -234,7 +242,7 @@
       lastDone = done;
     };
     const frame = () => {
-      const p = parseFloat(desk.style.getPropertyValue('--sc-p')) || 0;
+      const p = parseFloat(getComputedStyle(desk).getPropertyValue('--sc-p')) || 0;
       if (p !== last) { last = p; update(p); }
       requestAnimationFrame(frame);
     };
@@ -248,7 +256,7 @@
     const items = $$('.path__step', pathBox);
     let shown = -1;
     const tick = () => {
-      const p = parseFloat(pathAct.style.getPropertyValue('--sc-p')) || 0;
+      const p = parseFloat(getComputedStyle(pathAct).getPropertyValue('--sc-p')) || 0;
       const step = Math.max(0, Math.min(items.length - 1, Math.floor((p - 0.02) / 0.235)));
       if (step !== shown) {
         shown = step;
@@ -260,125 +268,109 @@
     requestAnimationFrame(tick);
   }
 
-  /* ---------- the relay at the close: tasks come in, the robot works, results go out ---------- */
-  const relay = $('.relay');
-  if (relay && !reduced.matches) {
-    const NS = 'http://www.w3.org/2000/svg';
-    const svg = $('.relay__wires', relay);
-    const bot = $('.robot', relay);
-    const botHead = $('.robot__head', relay);
-    const botSay = $('.robot__say', relay);
-    const ins = Object.fromEntries($$('[data-in]', relay).map((n) => [n.dataset.in, n]));
-    const outs = Object.fromEntries($$('[data-out]', relay).map((n) => [n.dataset.out, n]));
-    const parcelIn = $('.relay__parcel', relay);
-    const parcelOut = parcelIn.cloneNode(true);
-    parcelIn.after(parcelOut);
-    const jobs = [
-      { from: 'chat', icon: 'message-square', name: 'Support-Ticket', to: 'reply', result: 'Ticket gelöst' },
-      { from: 'form', icon: 'file-text', name: 'Projektanfrage', to: 'data', result: 'Kontakt angelegt' },
-      { from: 'mail', icon: 'mail', name: 'Terminanfrage', to: 'calendar', result: 'Termin eingetragen' },
-      { from: 'chat', icon: 'message-square', name: 'Rückfrage', to: 'reply', result: 'Beantwortet' },
-      { from: 'mail', icon: 'mail', name: 'Rechnung anfordern', to: 'data', result: 'Rechnung abgelegt' },
+  /* ---------- the inbox at the close: a customer writes, the robot handles it, the answer goes back ---------- */
+  const inbox = $('.inbox');
+  if (inbox && !reduced.matches && 'IntersectionObserver' in window && inbox.animate) {
+    const bot = $('.robot', inbox);
+    const say = $('.robot__say', inbox);
+    const chip = $('.inbox__chip', inbox);
+    const subject = $('.inbox__subject', inbox);
+    const body = $('.inbox__body', inbox);
+    const send = $('.inbox__send', inbox);
+    const steps = $$('.inbox__steps li', inbox);
+    const reply = $('.inbox__reply', inbox);
+    const mails = [
+      { subject: 'Projektanfrage', body: 'Hallo, wir brauchen einen Ticket-Bot.', reply: 'Danke! Deine Anfrage ist angekommen.' },
+      { subject: 'Frage zur Website', body: 'Könnt ihr unsere Seite neu bauen?', reply: 'Danke! Terminvorschläge sind unterwegs.' },
+      { subject: 'Abläufe automatisieren', body: 'Unsere Rechnungen kosten zu viel Zeit.', reply: 'Danke! Die Anfrage ist eingeordnet.' },
     ];
-    const wires = { in: {}, out: {} };
-    const wire = () => { const p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'relay__wire'); svg.appendChild(p); return p; };
-    Object.keys(ins).forEach((k) => (wires.in[k] = wire()));
-    Object.keys(outs).forEach((k) => (wires.out[k] = wire()));
-    const layout = () => {
-      const s = relay.getBoundingClientRect();
-      if (!s.width) return;
-      svg.setAttribute('viewBox', `0 0 ${s.width} ${s.height}`);
-      const rel = (el) => { const r = el.getBoundingClientRect(); return { l: r.left - s.left, r: r.right - s.left, cy: r.top - s.top + r.height / 2 }; };
-      const hd = rel(botHead);
-      const curve = (a, b) => { const m = (b[0] - a[0]) * 0.5; return `M${a[0]} ${a[1]}C${a[0] + m} ${a[1]} ${b[0] - m} ${b[1]} ${b[0]} ${b[1]}`; };
-      Object.entries(ins).forEach(([k, n], i) => { const r = rel(n); wires.in[k].setAttribute('d', curve([r.r, r.cy], [hd.l - 6, hd.cy + (i - 1) * 14])); });
-      Object.entries(outs).forEach(([k, n], i) => { const r = rel(n); wires.out[k].setAttribute('d', curve([hd.r + 6, hd.cy + (i - 1) * 14], [r.l, r.cy])); });
+    // the card keeps the height of its tallest mail, so nothing below it moves while it plays
+    const card = $('.inbox__card', inbox);
+    const fit = () => {
+      const now = [subject.textContent, body.textContent, reply.textContent];
+      card.style.minHeight = '';
+      let tallest = 0;
+      mails.forEach((m) => { subject.textContent = m.subject; body.textContent = m.body; reply.textContent = m.reply; tallest = Math.max(tallest, card.offsetHeight); });
+      [subject.textContent, body.textContent, reply.textContent] = now;
+      if (tallest) card.style.minHeight = tallest + 'px';
     };
-
-    // one clock, so the loop rests while the close is off screen or the tab is hidden
-    const clock = { now: 0, last: 0, running: false, jobs: [] };
-    const frame = (t) => {
-      const dt = Math.min(50, t - (clock.last || t));
-      clock.last = t;
-      if (clock.running) {
-        clock.now += dt;
-        clock.jobs = clock.jobs.filter((job) => {
-          const p = Math.min(1, (clock.now - job.start) / job.dur);
-          if (job.step) job.step(p);
-          if (p < 1) return true;
-          job.done();
-          return false;
-        });
-      }
-      requestAnimationFrame(frame);
-    };
-    const tween = (dur, step) => new Promise((done) => clock.jobs.push({ start: clock.now, dur: Math.max(1, dur), step, done }));
-    const wait = (ms) => tween(ms);
-    const ease = (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    addEventListener('resize', fit);
     const look = (x, y) => { bot.style.setProperty('--look-x', x + 'px'); bot.style.setProperty('--look-y', y + 'px'); };
-    const travel = async (el, path, ms, icon, text) => {
-      const len = path.getTotalLength();
-      $('use', el).setAttribute('href', '#i-' + icon);
-      $('span', el).textContent = text;
-      const w = el.offsetWidth, h = el.offsetHeight;
-      const place = (p) => { const pt = path.getPointAtLength(len * ease(p)); el.style.transform = `translate(${pt.x - w / 2}px, ${pt.y - h / 2}px)`; };
-      place(0);
-      path.classList.add('is-live');
-      el.classList.add('is-on');
-      await tween(ms, place);
-      el.classList.remove('is-on');
-      path.classList.remove('is-live');
+    const pause = (ms) => new Promise((done) => setTimeout(done, ms));
+    const type = async (el, text, perChar) => { for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await pause(perChar); } };
+    // the chip travels between the card and the robot's chest
+    const fly = (icon, text, toRobot) => {
+      $('use', chip).setAttribute('href', '#i-' + icon);
+      $('span', chip).textContent = text;
+      const box = inbox.getBoundingClientRect();
+      const card = $('.inbox__card', inbox).getBoundingClientRect();
+      const robot = $('.hello', inbox).getBoundingClientRect();
+      const w = chip.offsetWidth, h = chip.offsetHeight;
+      const atCard = `translate(${card.left - box.left + 12}px, ${card.top - box.top + card.height * 0.42}px)`;
+      const atBot = `translate(${robot.left - box.left + (robot.width - w) / 2}px, ${robot.bottom - box.top - robot.height * 0.3 - h / 2}px)`;
+      const from = toRobot ? atCard : atBot, to = toRobot ? atBot : atCard;
+      return chip.animate([
+        { transform: from + ' scale(0.7)', opacity: 0 },
+        { transform: from, opacity: 1, offset: 0.16 },
+        { transform: to, opacity: 1, offset: 0.84 },
+        { transform: to + ' scale(0.7)', opacity: 0 },
+      ], { duration: 1100, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }).finished;
     };
-    const inbound = async (job) => {
-      const node = ins[job.from];
-      node.classList.add('is-active');
-      look(-8, 0);
-      await travel(parcelIn, wires.in[job.from], 820, job.icon, job.name);
-      node.classList.remove('is-active');
-    };
-    const work = async (job) => {
-      botSay.textContent = job.name;
+    let seen = false, running = false, n = 0;
+    const round = async () => {
+      const mail = mails[n++ % mails.length];
+      // the customer writes
+      inbox.dataset.phase = 'write';
+      subject.textContent = '';
+      body.textContent = '';
+      steps.forEach((li) => { li.dataset.s = 'todo'; });
+      reply.textContent = mail.reply;
+      say.textContent = 'wartet';
       bot.classList.remove('is-happy');
+      look(-8, 2);
+      await pause(500);
+      await type(subject, mail.subject, 38);
+      await type(body, mail.body, 30);
+      await pause(350);
+      send.classList.add('is-pressed');
+      await pause(180);
+      send.classList.remove('is-pressed');
+      // the mail goes to the robot
+      inbox.dataset.phase = 'work';
+      await fly('mail', mail.subject, true);
+      bot.classList.add('is-pulse');
+      setTimeout(() => bot.classList.remove('is-pulse'), 420);
+      // the robot works through it
+      say.textContent = 'arbeitet';
       bot.classList.add('is-typing');
       look(0, 5);
-      await wait(1100);
-      bot.classList.remove('is-typing');
-    };
-    const outbound = async (job) => {
-      const node = outs[job.to];
-      botSay.textContent = 'erledigt';
-      bot.classList.add('is-happy');
-      node.classList.add('is-active');
-      await travel(parcelOut, wires.out[job.to], 820, 'check', job.result);
-      await wait(420);
-      node.classList.remove('is-active');
-    };
-
-    const state = { seen: false, shown: !document.hidden };
-    const sync = () => { clock.running = state.seen && state.shown; };
-    new IntersectionObserver(([e]) => { state.seen = e.isIntersecting; sync(); }, { threshold: 0.3 }).observe(relay);
-    document.addEventListener('visibilitychange', () => { state.shown = !document.hidden; sync(); });
-
-    const start = async () => {
-      layout();
-      if ('ResizeObserver' in window) new ResizeObserver(layout).observe(relay);
-      addEventListener('resize', layout);
-      requestAnimationFrame(frame);
-      await inbound(jobs[0]);
-      for (let i = 0; ; i++) {
-        await work(jobs[i % jobs.length]);
-        await Promise.all([outbound(jobs[i % jobs.length]), wait(300).then(() => inbound(jobs[(i + 1) % jobs.length]))]);
+      for (const li of steps) {
+        li.dataset.s = 'run';
+        await pause(650);
+        li.dataset.s = 'done';
+        await pause(120);
       }
+      bot.classList.remove('is-typing');
+      // and answers
+      say.textContent = 'erledigt';
+      bot.classList.add('is-happy');
+      look(-8, 2);
+      await fly('check', 'Antwort', false);
+      inbox.dataset.phase = 'reply';
+      await pause(2600);
     };
-    // on a phone the relay is not shown; it starts as soon as there is room for it
-    let started = false;
-    const begin = () => {
-      if (started || !relay.offsetWidth) return;
-      started = true;
-      start();
+    const loop = async () => {
+      if (running) return;
+      running = true;
+      while (seen && !document.hidden) await round();
+      running = false;
     };
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(begin); else begin();
-    addEventListener('resize', begin);
+    new IntersectionObserver(([e]) => { seen = e.isIntersecting; if (seen) loop(); }, { threshold: 0.35 }).observe(inbox);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && seen) loop(); });
+  } else if (inbox) {
+    inbox.dataset.phase = 'reply';
   }
 
   // the robot blinks now and then, wherever it sits
@@ -395,10 +387,13 @@
   const flows = $$('[data-flow]');
   if ((scrubs.length || flows.length) && !reduced.matches) {
     const groups = scrubs.map((el) => {
-      const words = el.textContent.trim().split(/\s+/);
-      el.setAttribute('aria-label', words.join(' '));
-      el.innerHTML = words.map((w) => `<span aria-hidden="true">${w}</span>`).join(' ');
-      return { el, spans: $$('span', el) };
+      const text = el.textContent.trim();
+      const read = document.createElement('span');
+      read.className = 'visually-hidden';
+      read.textContent = text;
+      const spans = text.split(/\s+/).map((w) => { const sp = document.createElement('span'); sp.setAttribute('aria-hidden', 'true'); sp.textContent = w; return sp; });
+      el.replaceChildren(read, ...spans.flatMap((sp, i) => (i ? [' ', sp] : [sp])));
+      return { el, spans };
     });
     let ticking = false;
     const paintText = () => {
@@ -481,7 +476,20 @@
     if (!reduced.matches && 'IntersectionObserver' in window) {
       const every = 5000;
       let seen = false, restUntil = 0, timer = 0;
-      const busy = () => list.matches(':hover') || list.contains(document.activeElement) || Date.now() < restUntil;
+      // a visible control stops the rotation for good (WCAG 2.2.2)
+      let paused = false;
+      const pauseBtn = $('.seg__pause', root);
+      if (pauseBtn) {
+        pauseBtn.hidden = false;
+        pauseBtn.addEventListener('click', () => {
+          paused = !paused;
+          pauseBtn.setAttribute('aria-pressed', String(paused));
+          pauseBtn.setAttribute('aria-label', paused ? 'Automatischen Wechsel fortsetzen' : 'Automatischen Wechsel anhalten');
+          $('use', pauseBtn).setAttribute('href', paused ? '#i-play' : '#i-pause');
+          list.classList.toggle('is-auto', !paused && seen);
+        });
+      }
+      const busy = () => paused || list.matches(':hover') || !!list.querySelector(':focus-visible') || Date.now() < restUntil;
       const tick = () => {
         if (!seen || document.hidden) return;
         const waiting = busy();
@@ -500,7 +508,6 @@
         if (!e.isTrusted) return;
         restUntil = Date.now() + 6000;
         list.classList.remove('is-auto');
-        t.blur();
       }));
     }
   });
@@ -509,14 +516,21 @@
   $$('[data-copy]').forEach((btn) => {
     const label = $('span', btn);
     const text = label.textContent;
+    // screen readers hear the result too
+    const status = document.createElement('span');
+    status.className = 'visually-hidden';
+    status.setAttribute('role', 'status');
+    btn.after(status);
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(btn.dataset.copy);
         label.textContent = 'Kopiert';
+        status.textContent = 'Adresse in die Zwischenablage kopiert';
       } catch (err) {
         label.textContent = 'Bitte von Hand kopieren';
+        status.textContent = 'Kopieren nicht möglich, bitte die Adresse von Hand kopieren';
       }
-      setTimeout(() => { label.textContent = text; }, 2200);
+      setTimeout(() => { label.textContent = text; status.textContent = ''; }, 2200);
     });
   });
 
@@ -526,6 +540,7 @@
     let target = scrollY, current = scrollY, gliding = false;
     const limit = () => root.scrollHeight - innerHeight;
     const glide = () => {
+      if (!gliding) return;
       current += (target - current) * 0.12;
       if (Math.abs(target - current) < 0.4) { current = target; gliding = false; }
       scrollTo({ top: current, behavior: 'instant' });

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LNW Automation &amp; AI Solutions: Automation, KI-Bots und Websites</title>
 <meta name="description" content="Automatisierte Abläufe, KI-Bots und Websites für Startups und Unternehmen jeder Art. Das Erstgespräch ist kostenlos.">
+<link rel="canonical" href="https://lnw-automations-solutions.de/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="LNW Automation &amp; AI Solutions">
@@ -17,12 +18,26 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0b0b0a">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/funnel-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/funnel-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="scrollcraft.css">
 <link rel="stylesheet" href="styles.css">
 <noscript><style>[data-sc-in],[data-sc-stagger]>*,[data-sc-cue]{opacity:1!important;transform:none!important}.hero__line{display:none}</style></noscript>
 <script>document.documentElement.classList.add('js');</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "LNW Automation & AI Solutions",
+  "description": "Automatisierte Abläufe, KI-Bots und Websites für Startups und Unternehmen jeder Art.",
+  "url": "https://lnw-automations-solutions.de/",
+  "image": "https://lnw-automations-solutions.de/og.jpg",
+  "email": "kontakt@lnw-automations-solutions.de",
+  "founder": { "@type": "Person", "name": "Lukas Wiesemöller" },
+  "address": { "@type": "PostalAddress", "streetAddress": "Vitusstraße 10", "postalCode": "33178", "addressLocality": "Borchen", "addressCountry": "DE" }
+}
+</script>
 </head>
 <body>
 <!-- Icons: Lucide (ISC License, lucide.dev) -->
@@ -111,7 +126,7 @@
           <span class="robot__keys"></span>
         </div>
         <div class="screen">
-          <p class="screen__head"><span>Erledigt</span><output class="screen__count">0 von 6</output></p>
+          <p class="screen__head"><span>Erledigt</span><span class="screen__count">0 von 6</span></p>
           <ol class="done">
             <li style="--a:0.24"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Ticket gelöst</li>
             <li style="--a:0.32"><span class="tick"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>Termin eingetragen</li>
@@ -283,10 +298,13 @@
     <div class="container" data-switch>
       <div class="cols head" data-sc-in>
         <h2>Automation für jede Unternehmensgröße.</h2>
-        <div class="seg" role="tablist" aria-label="Zielgruppe">
-        <button type="button" role="tab" id="tab-unternehmen" aria-controls="panel-unternehmen" aria-selected="true">Unternehmen</button>
-        <button type="button" role="tab" id="tab-startups" aria-controls="panel-startups" aria-selected="false" tabindex="-1">Startups</button>
-        <button type="button" role="tab" id="tab-alle" aria-controls="panel-alle" aria-selected="false" tabindex="-1">Alle anderen</button>
+        <div class="segbar">
+          <div class="seg" role="tablist" aria-label="Zielgruppe">
+          <button type="button" role="tab" id="tab-unternehmen" aria-controls="panel-unternehmen" aria-selected="true">Unternehmen</button>
+          <button type="button" role="tab" id="tab-startups" aria-controls="panel-startups" aria-selected="false" tabindex="-1">Startups</button>
+          <button type="button" role="tab" id="tab-alle" aria-controls="panel-alle" aria-selected="false" tabindex="-1">Alle anderen</button>
+          </div>
+          <button class="seg__pause" type="button" hidden aria-pressed="false" aria-label="Automatischen Wechsel anhalten"><svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg></button>
         </div>
       </div>
       <div class="who__stack">
@@ -334,17 +352,23 @@
               <button class="btn btn--clear" type="button" data-copy="kontakt@lnw-automations-solutions.de"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Adresse kopieren</span></button>
             </div>
           </div>
-          <figure class="relay" aria-hidden="true">
-            <svg class="relay__wires" focusable="false"></svg>
-            <span class="relay__parcel"><svg class="icon"><use href="#i-mail"/></svg><span></span></span>
-            <ul class="relay__col">
-              <li class="relay__node" data-in="mail"><svg class="icon"><use href="#i-mail"/></svg>E-Mail</li>
-              <li class="relay__node" data-in="chat"><svg class="icon"><use href="#i-message-square"/></svg>Chat</li>
-              <li class="relay__node" data-in="form"><svg class="icon"><use href="#i-file-text"/></svg>Formular</li>
-            </ul>
-            <div class="relay__bot">
+          <figure class="inbox" aria-hidden="true" data-phase="write">
+            <span class="inbox__chip"><svg class="icon"><use href="#i-mail"/></svg><span>Projektanfrage</span></span>
+            <div class="inbox__card">
+              <p class="inbox__to">An: LNW</p>
+              <p class="inbox__subject">Projektanfrage</p>
+              <p class="inbox__body">Hallo, wir brauchen einen Ticket-Bot.</p>
+              <span class="inbox__send">Senden</span>
+              <ol class="inbox__steps">
+                <li data-s="done"><span class="tick"><svg class="icon"><use href="#i-check"/></svg></span><span>Anfrage gelesen</span></li>
+                <li data-s="done"><span class="tick"><svg class="icon"><use href="#i-check"/></svg></span><span>Thema erkannt</span></li>
+                <li data-s="done"><span class="tick"><svg class="icon"><use href="#i-check"/></svg></span><span>Antwort geschrieben</span></li>
+              </ol>
+              <p class="inbox__reply">Danke! Deine Anfrage ist angekommen.</p>
+            </div>
+            <div class="hello">
               <div class="robot">
-                <p class="robot__say">arbeitet</p>
+                <p class="robot__say">erledigt</p>
                 <span class="robot__antenna"></span>
                 <span class="robot__ear robot__ear--l"></span><span class="robot__ear robot__ear--r"></span>
                 <span class="robot__head"><span class="robot__visor"><i class="robot__eye robot__eye--l"></i><i class="robot__eye robot__eye--r"></i></span></span>
@@ -354,28 +378,26 @@
                 <span class="robot__keys"></span>
               </div>
             </div>
-            <ul class="relay__col">
-              <li class="relay__node" data-out="reply"><svg class="icon"><use href="#i-send"/></svg>Antworten</li>
-              <li class="relay__node" data-out="data"><svg class="icon"><use href="#i-database"/></svg>Datenbank</li>
-              <li class="relay__node" data-out="calendar"><svg class="icon"><use href="#i-calendar-check"/></svg>Kalender</li>
-            </ul>
           </figure>
         </div>
-        <footer class="foot">
-          <div class="cols foot__grid">
-            <address class="foot__addr">LNW Automation &amp; AI Solutions<br>Lukas Wiesemöller<br>Vitusstraße 10, 33178 Borchen</address>
-            <ul class="foot__links">
-              <li><a href="impressum.html">Impressum</a></li>
-              <li><a href="datenschutz.html">Datenschutz</a></li>
-            </ul>
-            <p class="foot__legal">© 2026 LNW</p>
-          </div>
-        </footer>
       </div>
     </div>
   </section>
 
 </main>
+
+<footer class="foot foot--line">
+  <div class="container">
+    <div class="cols foot__grid">
+      <address class="foot__addr">LNW Automation &amp; AI Solutions<br>Lukas Wiesemöller<br>Vitusstraße 10, 33178 Borchen</address>
+      <ul class="foot__links">
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+      </ul>
+      <p class="foot__legal">© 2026 LNW</p>
+    </div>
+  </div>
+</footer>
 
 <script src="scrollcraft.js"></script>
 <script src="main.js"></script>
