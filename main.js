@@ -479,7 +479,7 @@
     // the next audience comes up by itself for as long as the section is on screen.
     // It only waits while the pointer rests on the tabs themselves, and for a few seconds after a click.
     if (!reduced.matches && 'IntersectionObserver' in window) {
-      const every = 2400;
+      const every = 5000;
       let seen = false, restUntil = 0, timer = 0;
       const busy = () => list.matches(':hover') || list.contains(document.activeElement) || Date.now() < restUntil;
       const tick = () => {
