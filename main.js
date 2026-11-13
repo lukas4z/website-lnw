@@ -434,7 +434,7 @@
 
     // every few seconds the next audience comes up; it waits while someone reads or uses the tabs
     if (!reduced.matches && 'IntersectionObserver' in window) {
-      const every = 4500;
+      const every = 1800;
       const state = { seen: false, held: false, stopped: false };
       let timer = 0;
       const sync = () => {
