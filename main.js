@@ -309,8 +309,7 @@
         tile.style.setProperty('--mx', e.clientX - r.left + 'px');
         tile.style.setProperty('--my', e.clientY - r.top + 'px');
       });
-      const btn = $('.tile__play', tile);
-      if (btn) btn.addEventListener('click', () => run(tile));
+      tile.addEventListener('click', () => run(tile));
     });
   }
 
