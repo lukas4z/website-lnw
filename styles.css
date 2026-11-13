@@ -76,6 +76,14 @@ html:not(.js) .seg { display: none; }
 .nav { position: fixed; top: var(--space-md); left: 0; right: 0; z-index: var(--z-sticky-nav); pointer-events: none; }
 .nav__bar { position: relative; pointer-events: auto; display: flex; align-items: center; gap: var(--space-xl); width: fit-content; max-width: calc(100% - 2 * var(--gutter)); min-height: 60px; margin-inline: auto; padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg); border-radius: var(--radius-pill); background: color-mix(in oklab, var(--color-light) 74%, transparent); -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); box-shadow: var(--edge-light), var(--shadow-card); }
 .wordmark { display: inline-flex; align-items: center; min-height: 44px; font: 500 1.375rem/1 var(--font-display); letter-spacing: -0.02em; color: var(--color-ink); text-decoration: none; border-radius: var(--radius-inner); }
+/* the logo: L, a robot head whose eyes spell the N, W */
+.logo { display: block; height: 34px; width: auto; overflow: visible; }
+.logo__ink { fill: none; stroke: currentColor; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+.logo__stem { stroke: currentColor; stroke-width: 6; stroke-linecap: round; }
+.logo__head { fill: currentColor; }
+.logo__visor { fill: var(--logo-visor, var(--color-paper)); }
+.logo__eye { fill: var(--color-accent); }
+.logo__bar { stroke: var(--color-accent); stroke-width: 7; stroke-linecap: round; }
 .nav__links { display: flex; align-items: center; gap: var(--space-2xs); }
 .nav__links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-sm); border-radius: var(--radius-pill); font-size: 0.9375rem; font-weight: 500; color: var(--color-ink-2); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out); }
 .nav__links a:hover { color: var(--color-ink); background: color-mix(in oklab, var(--color-shade) 30%, transparent); }
