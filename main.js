@@ -14,10 +14,18 @@
       links.classList.toggle('is-open', open);
       toggle.setAttribute('aria-expanded', String(open));
     };
-    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+    toggle.addEventListener('click', () => {
+      setOpen(!isOpen());
+      if (isOpen()) { const first = links.querySelector('a'); if (first) first.focus(); }
+    });
     links.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    // Escape closes the menu and hands the focus back to its button
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) { setOpen(false); toggle.focus(); } });
     document.addEventListener('click', (e) => { if (!e.target.closest('.nav__bar')) setOpen(false); });
+    // tabbing out of the open menu closes it, so the focus never sits behind it
+    const bar = toggle.closest('.nav__bar');
+    bar.addEventListener('focusout', (e) => { if (isOpen() && e.relatedTarget && !bar.contains(e.relatedTarget)) setOpen(false); });
   }
 
   const navLinks = $$('.nav__links a[href^="#"]');
@@ -339,6 +347,8 @@
       const dark = document.documentElement.dataset.mode !== 'dark';
       if (dark) document.documentElement.dataset.mode = 'dark'; else delete document.documentElement.dataset.mode;
       try { localStorage.setItem('lnw-mode', dark ? 'dark' : 'light'); } catch (err) { /* private mode: the choice lasts for this visit */ }
+      const themeColor = $('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = dark ? '#0b1220' : '#fbfaf7';
       paintLights();
     });
   }
@@ -359,10 +369,12 @@
 
   const scrub = $('[data-scrub]');
   if (scrub && !reduced.matches) {
-    const words = scrub.textContent.trim().split(/\s+/);
-    scrub.setAttribute('aria-label', words.join(' '));
-    scrub.innerHTML = words.map((w) => `<span aria-hidden="true">${w}</span>`).join(' ');
-    const spans = $$('span', scrub);
+    const text = scrub.textContent.trim();
+    const read = document.createElement('span');
+    read.className = 'visually-hidden';
+    read.textContent = text;
+    const spans = text.split(/\s+/).map((w) => { const sp = document.createElement('span'); sp.setAttribute('aria-hidden', 'true'); sp.textContent = w; return sp; });
+    scrub.replaceChildren(read, ...spans.flatMap((sp, i) => (i ? [' ', sp] : [sp])));
     let ticking = false;
     const paint = () => {
       ticking = false;
@@ -439,7 +451,20 @@
     if (!reduced.matches && 'IntersectionObserver' in window) {
       const every = 5000;
       let seen = false, restUntil = 0, timer = 0;
-      const busy = () => list.matches(':hover') || list.contains(document.activeElement) || Date.now() < restUntil;
+      // a visible control stops the rotation for good (WCAG 2.2.2)
+      let paused = false;
+      const pauseBtn = $('.seg__pause', root);
+      if (pauseBtn) {
+        pauseBtn.hidden = false;
+        pauseBtn.addEventListener('click', () => {
+          paused = !paused;
+          pauseBtn.setAttribute('aria-pressed', String(paused));
+          pauseBtn.setAttribute('aria-label', paused ? 'Automatischen Wechsel fortsetzen' : 'Automatischen Wechsel anhalten');
+          $('use', pauseBtn).setAttribute('href', paused ? '#i-play' : '#i-pause');
+          list.classList.toggle('is-auto', !paused && seen);
+        });
+      }
+      const busy = () => paused || list.matches(':hover') || !!list.querySelector(':focus-visible') || Date.now() < restUntil;
       const tick = () => {
         if (!seen || document.hidden) return;
         const waiting = busy();
@@ -458,7 +483,6 @@
         if (!e.isTrusted) return;
         restUntil = Date.now() + 6000;
         list.classList.remove('is-auto');
-        t.blur();
       }));
     }
   });
@@ -479,6 +503,19 @@
       { subject: 'Frage zur Website', body: 'Könnt ihr unsere Seite neu bauen?', reply: 'Danke! Terminvorschläge sind unterwegs.' },
       { subject: 'Abläufe automatisieren', body: 'Unsere Rechnungen kosten zu viel Zeit.', reply: 'Danke! Die Anfrage ist eingeordnet.' },
     ];
+    // the card keeps the height of its tallest mail, so nothing below it moves while it plays
+    const card = $('.inbox__card', inbox);
+    const fit = () => {
+      const now = [subject.textContent, body.textContent, reply.textContent];
+      card.style.minHeight = '';
+      let tallest = 0;
+      mails.forEach((m) => { subject.textContent = m.subject; body.textContent = m.body; reply.textContent = m.reply; tallest = Math.max(tallest, card.offsetHeight); });
+      [subject.textContent, body.textContent, reply.textContent] = now;
+      if (tallest) card.style.minHeight = tallest + 'px';
+    };
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    addEventListener('resize', fit);
     const look = (x, y) => { bot.style.setProperty('--look-x', x + 'px'); bot.style.setProperty('--look-y', y + 'px'); };
     const pause = (ms) => new Promise((done) => setTimeout(done, ms));
     const type = async (el, text, perChar) => { for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await pause(perChar); } };
@@ -559,14 +596,21 @@
   $$('[data-copy]').forEach((btn) => {
     const label = $('span', btn);
     const text = label.textContent;
+    // screen readers hear the result too
+    const status = document.createElement('span');
+    status.className = 'visually-hidden';
+    status.setAttribute('role', 'status');
+    btn.after(status);
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(btn.dataset.copy);
         label.textContent = 'Kopiert';
+        status.textContent = 'Adresse in die Zwischenablage kopiert';
       } catch (err) {
         label.textContent = 'Bitte von Hand kopieren';
+        status.textContent = 'Kopieren nicht möglich, bitte die Adresse von Hand kopieren';
       }
-      setTimeout(() => { label.textContent = text; }, 2200);
+      setTimeout(() => { label.textContent = text; status.textContent = ''; }, 2200);
     });
   });
 })();

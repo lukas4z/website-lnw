@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LNW Automation &amp; AI Solutions: Automation, KI-Bots und Websites</title>
 <meta name="description" content="Automatisierte Abläufe, KI-Bots und Websites für Startups und Unternehmen jeder Art. Das Erstgespräch ist kostenlos.">
+<link rel="canonical" href="https://lnw-automations-solutions.de/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="LNW Automation &amp; AI Solutions">
@@ -17,10 +18,24 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#fbfaf7">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/funnel-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/funnel-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add('js'); try { if (localStorage.getItem('lnw-mode') === 'dark') document.documentElement.dataset.mode = 'dark'; } catch (e) {}</script>
+<script>document.documentElement.classList.add('js'); (function () { var m = null; try { m = localStorage.getItem('lnw-mode'); } catch (e) {} if (m === 'dark' || (!m && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.dataset.mode = 'dark'; var t = document.querySelector('meta[name="theme-color"]'); if (t) t.content = '#0b1220'; } })();</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "LNW Automation & AI Solutions",
+  "description": "Automatisierte Abläufe, KI-Bots und Websites für Startups und Unternehmen jeder Art.",
+  "url": "https://lnw-automations-solutions.de/",
+  "image": "https://lnw-automations-solutions.de/og.jpg",
+  "email": "kontakt@lnw-automations-solutions.de",
+  "founder": { "@type": "Person", "name": "Lukas Wiesemöller" },
+  "address": { "@type": "PostalAddress", "streetAddress": "Vitusstraße 10", "postalCode": "33178", "addressLocality": "Borchen", "addressCountry": "DE" }
+}
+</script>
 </head>
 <body>
 <!-- Icons: Lucide (ISC License, lucide.dev) -->
@@ -283,10 +298,13 @@
   <div class="container" data-switch>
     <div class="cols head" data-reveal>
       <h2>Automation für jede Unternehmensgröße.</h2>
-      <div class="seg" role="tablist" aria-label="Zielgruppe">
-        <button type="button" role="tab" id="tab-unternehmen" aria-controls="panel-unternehmen" aria-selected="true">Unternehmen</button>
-        <button type="button" role="tab" id="tab-startups" aria-controls="panel-startups" aria-selected="false" tabindex="-1">Startups</button>
-        <button type="button" role="tab" id="tab-alle" aria-controls="panel-alle" aria-selected="false" tabindex="-1">Alle anderen</button>
+      <div class="segbar">
+        <div class="seg" role="tablist" aria-label="Zielgruppe">
+          <button type="button" role="tab" id="tab-unternehmen" aria-controls="panel-unternehmen" aria-selected="true">Unternehmen</button>
+          <button type="button" role="tab" id="tab-startups" aria-controls="panel-startups" aria-selected="false" tabindex="-1">Startups</button>
+          <button type="button" role="tab" id="tab-alle" aria-controls="panel-alle" aria-selected="false" tabindex="-1">Alle anderen</button>
+        </div>
+        <button class="seg__pause" type="button" hidden aria-pressed="false" aria-label="Automatischen Wechsel anhalten"><svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg></button>
       </div>
     </div>
 
@@ -389,8 +407,6 @@
   </div>
 </footer>
 
-<script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
-document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
 <script src="main.js" defer></script>
 </body>
 </html>

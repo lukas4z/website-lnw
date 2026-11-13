@@ -2,3 +2,4 @@
 .hallmark/preflight.json
 preview/
 .DS_Store
+dist/

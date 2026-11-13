@@ -1,16 +1,4 @@
-/* Hallmark · shape: Bento Grid · genre: atmospheric · theme: Refract (deal 1/3, seed premium-freelancer-lnw-automation-81fc·768d47f8·2026-11-13·r0) · job: hire · draw: f9fe5f
- * hero: Ledge · nav: floating pill · footer: letter close · imagery: the product built in the hero, four tiles and four steps, Lukas's own portrait · signature: a small glass robot at its monitor, working through tasks live between their sources and their targets · refract: glass/pool
- * axes: light/grotesk-sans/cool · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H4 E4 S4 R3 V4 · weakest: R, a robot, a light and four playing tiles are a lot of moving parts; every loop is one-shot except the robot, which pauses, and the palette stays ink, paper and one blue */
-/* Hallmark · waive 80 · one robot figure built from the theme's clear surfaces, working the real task list beside it · Lukas asked for a small robot at a computer as the core of the page */
-/* Hallmark · waive 77 · the two legal pages hold an address and three short paragraphs · an Impressum and a Datenschutz page have nothing more to show */
-/* Hallmark · waive 78 · the legal pages are prose documents with inline heads at title size · Impressum and Datenschutz are read top to bottom, not scanned */
-/* Hallmark · dismissed 23 · the accent sits on 1.5px connector lines and one 44px switch, far under the footprint */
-/* Hallmark · dismissed 25 · tile and step lines are one-sentence captions in a narrow column */
-/* Hallmark · dismissed 58 · the window counts the hidden-until-played labels of the four step drawings */
-/* Hallmark · answered F4 · the segmented tab and the demo site's sample button are not page actions; Pause is a clear pill beside the one filled primary */
-/* Hallmark · answered F7 · pills here are controls, chips and the robot's own parts; panels take the card radius */
-/* Hallmark · modes: light+dark · dark panels for hero and contact in the light page, the whole page on the toggle */
+/* LNW Automation & AI Solutions · first version */
 @import url("./tokens.css");
 @import url("./base.css");
 
@@ -463,4 +451,54 @@ html:not(.js) .inbox .inbox__send { opacity: 0; }
   .js .stage:not(.is-built) .node, .js .stage:not(.is-built) .desk, .js .stage:not(.is-built) .wire { opacity: 1; transform: none; }
   .is-playing .a-fade, .is-playing .a-in, .is-playing .a-draw, .is-playing .a-dim, .is-playing .a-blip, .is-playing .a-run, .is-playing .a-slide, .is-playing .chip--cut::after { animation: none; }
   .stage__toggle { display: none; }
+}
+
+/* ==========================================================================
+   From the test round
+   ========================================================================== */
+/* tabs: the bar holds the tabs and a control that stops the rotation */
+.head .segbar { grid-column: 8 / span 5; justify-self: end; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-xs); max-width: 100%; }
+.seg__pause { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius-pill); background: color-mix(in oklab, var(--color-shade) 38%, transparent); color: var(--color-ink-2); cursor: pointer; }
+.seg__pause:hover { color: var(--color-ink); }
+.seg__pause:active { transform: translateY(1px); }
+.seg__pause[hidden] { display: none; }
+
+/* the mail card: the robot's label stays above its head, and the pair gets room on tablets */
+.inbox .robot__say { left: 50%; top: auto; bottom: calc(100% + var(--space-xs)); transform: translateX(-50%); }
+@media (min-width: 60.01rem) and (max-width: 75rem) {
+  .contact__say { grid-column: 1 / span 5; }
+  .contact__do { grid-column: 6 / span 7; }
+  .inbox { --robot-scale: 0.8; column-gap: var(--space-md); }
+}
+@media (max-width: 22rem) { .head h2 { font-size: 1.375rem; } .inbox { --robot-scale: 0.58; } }
+
+@media (max-width: 60rem) {
+  .head .segbar { grid-column: 1 / -1; justify-self: start; justify-content: flex-start; }
+}
+@media (max-width: 26rem) {
+  .segbar .seg { flex: 1 1 auto; }
+  .seg button { flex: 1 1 auto; padding: 0 var(--space-xs); font-size: var(--text-xs); }
+  .cut, .tile.card .cut { display: flex; flex-wrap: wrap; }
+  .cut__note { flex: 1 0 100%; }
+  .cut > :nth-child(1), .cut > :nth-child(2), .cut > :nth-child(3) { order: 1; }
+  .cut__note--auto { order: 2; }
+  .cut > :nth-child(4), .cut > :nth-child(5) { order: 3; }
+  .cut__note--keep { order: 4; }
+}
+
+@media (prefers-reduced-motion: reduce) { .seg__pause { display: none; } }
+
+@media print {
+  :root, .dark, :root[data-mode="dark"] { --color-paper: oklch(100% 0 0); --color-paper-2: oklch(100% 0 0); --color-ink: oklch(15% 0 0); --color-ink-2: oklch(25% 0 0); --color-muted: oklch(40% 0 0); --color-rule: oklch(80% 0 0); --color-accent-ink: oklch(100% 0 0); }
+  body, .dark, .band { background: none; }
+  .nav, .skip, .light, .stage, .inbox, .demo, .segbar { display: none !important; }
+  .hero__inner { min-height: 0; padding-block: var(--space-xl); }
+  .tile { min-height: 0; background: none; }
+  .js [data-reveal], [data-scrub] span { opacity: 1 !important; transform: none !important; }
+  .js .line > span { animation: none; }
+  .js .who__stack > .who__panel { grid-area: auto; opacity: 1; visibility: visible; transform: none; }
+  .clear, .btn { background: none; box-shadow: none; }
+  .btn { border: var(--rule-hair) solid var(--color-ink); color: var(--color-ink); }
+  .section, .section--s, .section--l { margin-top: var(--space-xl); }
+  .contact__inner { padding-block: var(--space-xl); }
 }
